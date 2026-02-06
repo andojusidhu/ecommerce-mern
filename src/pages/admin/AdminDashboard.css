@@ -1,0 +1,18 @@
+.admin-page {
+  padding: 30px;
+}
+
+.admin-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.admin-actions button {
+  padding: 20px;
+  border-radius: 16px;
+  border: none;
+  background: #ffe4ec;
+  font-size: 16px;
+  cursor: pointer;
+}

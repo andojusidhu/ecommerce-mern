@@ -1,0 +1,166 @@
+/* ================= PAGE BASE ================= */
+.categories-page {
+  padding: 28px 16px 40px;
+  background: #faf7f4;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ================= PAGE TITLE ================= */
+.page-title {
+  text-align: center;
+  font-size: 30px;
+  font-weight: 600;
+  color: #3f2a28;
+  margin-bottom: 26px;
+  letter-spacing: 0.6px;
+}
+
+/* ================= CATEGORY NAV ================= */
+.category-selector {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 42px;
+}
+
+.category-selector a {
+  text-decoration: none;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #fff;
+  color: #3f2a28;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(0,0,0,0.08);
+  transition: all 0.25s ease;
+}
+
+.category-selector a:hover {
+  background: #C9A24D;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(201, 162, 77, 0.4);
+}
+
+/* ================= CATEGORY BLOCK ================= */
+.category-block {
+  margin-bottom: 56px;
+}
+
+/* ================= CATEGORY HEADER ================= */
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.category-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #3f2a28;
+  position: relative;
+  padding-left: 12px;
+}
+
+.category-header h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  height: 80%;
+  width: 4px;
+  border-radius: 4px;
+  background: #C9A24D;
+}
+
+/* ================= SEE MORE ================= */
+.see-more {
+  font-size: 14px;
+  font-weight: 500;
+  color: #C9A24D;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.see-more:hover {
+  color: #9c7b2f;
+  text-decoration: underline;
+}
+
+/* ================= PRODUCT GRID ================= */
+.category-products {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 1 row x 4 products */
+  gap: 20px;
+}
+
+/* ================= PRODUCT CARD ================= */
+.category-product-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.category-product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.14);
+}
+
+/* ================= IMAGE ================= */
+.category-product-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* ✅ square */
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f2ede8;
+}
+
+/* ================= PRODUCT NAME ================= */
+.category-product-card h4 {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3f2a28;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ================= PRICE ================= */
+.category-product-card .price {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #C9A24D;
+}
+
+/* ================= RESPONSIVE ================= */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .category-products {
+    grid-template-columns: repeat(2, 1fr); /* 2 per row */
+  }
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .category-products {
+    grid-template-columns: 1fr; /* 1 per row */
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .category-header h2 {
+    font-size: 20px;
+  }
+}

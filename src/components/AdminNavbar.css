@@ -1,0 +1,13 @@
+.admin-navbar {
+  background-color: #ffb6c1;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.admin-navbar a {
+  margin-left: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}

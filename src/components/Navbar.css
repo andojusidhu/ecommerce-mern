@@ -1,0 +1,59 @@
+.bottom-navbar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(12px, 4vw, 24px);
+
+  padding: clamp(10px, 3vw, 16px)
+           clamp(16px, 5vw, 32px);
+
+  background: linear-gradient(
+    270deg,
+    #ffc0cb,
+    #ffb6c1,
+    #ffd1dc
+  );
+  background-size: 400% 400%;
+  animation: pinkWave 6s ease infinite;
+
+  border-radius: 40px;
+  box-shadow: 0 10px 25px rgba(255, 182, 193, 0.6);
+  z-index: 1000;
+  max-width: 95%;
+}
+
+/* Navbar links */
+.nav-item {
+  text-decoration: none;
+  font-size: clamp(0.75rem, 2.5vw, 1rem);
+  font-weight: 500;
+  color: #6b0036;
+  padding: 6px 10px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Animation */
+@keyframes pinkWave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .bottom-navbar {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+}

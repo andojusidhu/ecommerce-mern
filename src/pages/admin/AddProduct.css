@@ -1,0 +1,45 @@
+.admin-page {
+  max-width: 500px;
+  margin: auto;
+}
+
+.admin-page input,
+.admin-page textarea,
+.admin-page select {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.size-box {
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: #f9f9f9;
+}
+
+.size-box p {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.size-box label {
+  margin-right: 15px;
+  font-size: 14px;
+}
+
+.admin-page button {
+  padding: 12px;
+  width: 100%;
+  border-radius: 12px;
+  border: none;
+  background: lightpink;
+  cursor: pointer;
+}
+.preview {
+  width: 120px;
+  margin: 10px 0;
+  border-radius: 6px;
+}

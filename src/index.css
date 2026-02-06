@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #fff0f5;
+  color: #333;
+  padding-bottom: 120px; /* for bottom navbar */
+}
+
+/* Universal container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 16px;
+}
+
+/* Typography responsiveness */
+h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+
+h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+}
+
+p {
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+}
+
+/* Buttons */
+button {
+  width: 100%;
+  max-width: 300px;
+  margin: auto;
+  display: block;
+}

@@ -1,0 +1,38 @@
+.cart {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffe4ec;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cart h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #b03060;
+}
+
+.cart p {
+  text-align: center;
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.cart button {
+  display: block;
+  margin: 0 auto;
+  background-color: #ffb6c1;
+  color: #333;
+  font-size: 16px;
+  padding: 12px 25px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cart button:hover {
+  background-color: #ff9aa2;
+}
