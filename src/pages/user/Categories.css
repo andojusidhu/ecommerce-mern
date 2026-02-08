@@ -164,3 +164,147 @@
     font-size: 20px;
   }
 }
+/* PRODUCT GRID */
+.category-products {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.category-product-card {
+  background: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.category-product-card:hover {
+  transform: translateY(-4px);
+}
+
+.category-product-card img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* MODAL */
+.product-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #fff;
+  width: 85%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  border: none;
+  background: #000;
+  color: #fff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+/* PRODUCT DETAILS */
+.product-details {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.details-images img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.actions button {
+  padding: 10px 16px;
+  margin-right: 10px;
+}
+.category-product-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;     /* perfect square */
+  object-fit: cover;       /* no distortion */
+  object-position: center;
+  border-radius: 12px;
+  background: #eee;
+}
+/* Rating section */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.stars {
+  color: #f0c14b;
+  font-size: 14px;
+}
+
+.rating-number {
+  color: #555;
+  font-weight: 500;
+}
+.category-product-card {
+  background: #fff;
+  border: 1px solid #e3e6e6;
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left; /* align content to the left */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.category-product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.category-product-card h4 {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 4px 0;
+  text-align: left;
+}
+
+.category-product-card .rating {
+  text-align: left;
+  font-size: 14px;
+  color: #ffa41c;
+}
+
+.category-product-card .price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #b12704;
+  text-align: left;
+}

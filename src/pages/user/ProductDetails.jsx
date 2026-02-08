@@ -9,7 +9,12 @@ export default function ProductDetails() {
 
   return (
     <div className="product-details">
-      <img src={product.image} alt={product.name} />
+      <div className="image-gallery">
+        {product.images.map((img, i) => (
+          <img key={i} src={img} alt="product" />
+        ))}
+      </div>
+
       <h2>{product.name}</h2>
       <p>{product.description}</p>
       <h3>₹{product.price}</h3>

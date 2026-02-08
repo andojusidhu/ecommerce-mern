@@ -1,0 +1,409 @@
+/* ================= PAGE BASE ================= */
+.checkout-container {
+  max-width: 500px;
+  width: 95%;
+  margin: 40px auto;
+  background: #fff0f6;
+  border-radius: 14px;
+  padding: 20px 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ================= HEADINGS ================= */
+.checkout-container h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #d63384;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.checkout-container h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #d63384;
+  margin-bottom: 8px;
+}
+
+/* ================= ORDER SUMMARY ================= */
+.order-summary {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #ff69b4;
+  align-items: center;
+}
+
+.order-summary img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.order-summary div h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #d63384;
+}
+
+.order-summary div p {
+  font-size: 12px;
+  margin-bottom: 2px;
+  color: #333;
+}
+
+/* ================= INPUT FIELDS ================= */
+.checkout-container input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ff69b4;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.checkout-container input:focus {
+  border-color: #ff1493;
+  box-shadow: 0 0 5px rgba(255, 20, 147, 0.3);
+}
+
+/* ================= PLACE ORDER BUTTON ================= */
+.place-order-btn {
+  background: #ff1493;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.place-order-btn:hover {
+  background: #e60084;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 500px) {
+  .checkout-container {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .checkout-container h2 {
+    font-size: 18px;
+  }
+
+  .checkout-container h3 {
+    font-size: 14px;
+  }
+
+  .order-summary img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .order-summary div h3 {
+    font-size: 13px;
+  }
+
+  .order-summary div p {
+    font-size: 11px;
+  }
+
+  .checkout-container input {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .place-order-btn {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+}
+/* ================= PAGE BASE ================= */
+.checkout-container {
+  max-width: 500px;
+  width: 95%;
+  margin: 40px auto;
+  background: #fff0f6;
+  border-radius: 14px;
+  padding: 20px 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* HEADINGS */
+.checkout-container h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #d63384;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.checkout-container h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #d63384;
+  margin-bottom: 8px;
+}
+
+/* ORDER SUMMARY */
+.order-summary {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #ff69b4;
+  align-items: center;
+}
+
+.order-summary img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.order-summary div h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #d63384;
+}
+
+.order-summary div p {
+  font-size: 12px;
+  margin-bottom: 2px;
+  color: #333;
+}
+
+/* INPUTS */
+.checkout-container input,
+.checkout-container select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ff69b4;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+  background: #fff0f6;
+}
+
+.checkout-container input:focus,
+.checkout-container select:focus {
+  border-color: #ff1493;
+  box-shadow: 0 0 5px rgba(255, 20, 147, 0.3);
+}
+
+/* PLACE ORDER BUTTON */
+.place-order-btn {
+  background: #ff1493;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.place-order-btn:hover {
+  background: #e60084;
+}
+
+/* RESPONSIVE */
+@media (max-width: 500px) {
+  .checkout-container {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .checkout-container h2 {
+    font-size: 18px;
+  }
+
+  .checkout-container h3 {
+    font-size: 14px;
+  }
+
+  .order-summary img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .order-summary div h3 {
+    font-size: 13px;
+  }
+
+  .order-summary div p {
+    font-size: 11px;
+  }
+
+  .checkout-container input,
+  .checkout-container select {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .place-order-btn {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+}
+/* ================= PAGE BASE ================= */
+.checkout-container {
+  max-width: 500px;
+  width: 95%;
+  margin: 40px auto;
+  background: #fff0f6;
+  border-radius: 14px;
+  padding: 25px 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* vertical spacing between sections */
+}
+
+/* HEADINGS */
+.checkout-container h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #d63384;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.checkout-container h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #d63384;
+  margin-bottom: 8px;
+  margin-top: 15px;
+}
+
+/* ORDER SUMMARY */
+.order-summary {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #ff69b4;
+  align-items: center;
+}
+
+.order-summary img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.order-summary div h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #d63384;
+}
+
+.order-summary div p {
+  font-size: 12px;
+  margin-bottom: 2px;
+  color: #333;
+}
+
+/* INPUTS */
+.checkout-container input,
+.checkout-container select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px; /* proper spacing between fields */
+  border-radius: 8px;
+  border: 1px solid #ff69b4;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+  background: #fff0f6;
+  box-sizing: border-box; /* ensures proper sizing */
+}
+
+.checkout-container input:focus,
+.checkout-container select:focus {
+  border-color: #ff1493;
+  box-shadow: 0 0 5px rgba(255, 20, 147, 0.3);
+}
+
+/* PLACE ORDER BUTTON */
+.place-order-btn {
+  background: #ff1493;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 0;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px; /* spacing from last input */
+}
+
+.place-order-btn:hover {
+  background: #e60084;
+}
+
+/* RESPONSIVE */
+@media (max-width: 500px) {
+  .checkout-container {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  .checkout-container h2 {
+    font-size: 18px;
+  }
+
+  .checkout-container h3 {
+    font-size: 14px;
+  }
+
+  .order-summary img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .order-summary div h3 {
+    font-size: 13px;
+  }
+
+  .order-summary div p {
+    font-size: 11px;
+  }
+
+  .checkout-container input,
+  .checkout-container select {
+    font-size: 12px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+  }
+
+  .place-order-btn {
+    font-size: 13px;
+    padding: 10px 0;
+  }
+}

@@ -38,3 +38,6 @@ button {
   margin: auto;
   display: block;
 }
+body {
+  padding-bottom: 80px;
+}

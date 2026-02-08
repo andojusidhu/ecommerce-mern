@@ -1,4 +1,4 @@
-.login-container {
+.signup-container {
   max-width: 400px;
   margin: 60px auto;
   padding: 30px 25px;
@@ -9,22 +9,22 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
-.login-container h2 {
+.signup-container h2 {
   margin-bottom: 25px;
   color: #333;
   font-weight: 600;
 }
 
-/* Form wrapper: stack fields vertically with spacing */
-.login-form {
+/* Form wrapper: vertical stack with spacing */
+.signup-form {
   display: flex;
-  flex-direction: column; /* vertical stacking */
-  gap: 15px; /* spacing between inputs */
+  flex-direction: column; /* stack inputs vertically */
+  gap: 15px; /* space between inputs */
   width: 100%;
 }
 
 /* Input fields */
-.login-form input {
+.signup-form input {
   width: 100%;
   padding: 12px 15px;
   border: 1px solid #ccc;
@@ -33,14 +33,14 @@
   box-sizing: border-box; /* ensures padding doesn't break width */
 }
 
-.login-form input:focus {
+.signup-form input:focus {
   border-color: #5c6bc0;
   outline: none;
   box-shadow: 0 0 6px rgba(92, 107, 192, 0.3);
 }
 
 /* Submit button */
-.login-form button {
+.signup-form button {
   padding: 12px;
   background-color: #5c6bc0;
   color: #fff;
@@ -51,35 +51,41 @@
   transition: background 0.3s ease;
 }
 
-.login-form button:hover {
+.signup-form button:hover {
   background-color: #3949ab;
 }
 
-/* Error messages */
+/* Error and success messages */
 .error-msg {
   color: #e53935;
   font-size: 14px;
   margin-top: 5px;
 }
 
-/* Signup link below form */
-.signup-link {
+.success-msg {
+  color: #43a047;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Login link below form */
+.login-link {
   margin-top: 15px;
   font-size: 14px;
 }
 
-.signup-link a {
+.login-link a {
   color: #5c6bc0;
   text-decoration: none;
 }
 
-.signup-link a:hover {
+.login-link a:hover {
   text-decoration: underline;
 }
 
 /* Responsive adjustments */
 @media (max-width: 480px) {
-  .login-container {
+  .signup-container {
     margin: 40px 15px;
     padding: 25px 20px;
   }

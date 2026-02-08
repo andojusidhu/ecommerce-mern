@@ -1,15 +1,26 @@
 import "./Categories.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function Categories() {
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
 
-  // Get products added by admin (frontend only)
-  const products = JSON.parse(localStorage.getItem("products")) || [];
+  // Load products from localStorage
+  useEffect(() => {
+    const storedProducts =
+      JSON.parse(localStorage.getItem("products")) || [];
+    setProducts(storedProducts);
+  }, []);
 
+  // Default rating
+  const defaultRating = 4.5;
+
+  // Render products category-wise
   const renderCategory = (title, categoryKey) => {
-    const categoryProducts = products.filter(p => p.category === categoryKey);
-    const showProducts = categoryProducts.slice(0, 4); // show only 4
+    const categoryProducts = products.filter(
+      (product) => product.category === categoryKey
+    );
 
     if (categoryProducts.length === 0) return null;
 
@@ -17,26 +28,37 @@ export default function Categories() {
       <section id={categoryKey.toLowerCase()} className="category-block">
         <div className="category-header">
           <h2>{title}</h2>
-          {categoryProducts.length > 4 && (
-            <span
-              className="see-more"
-              onClick={() => navigate(`/categories/${categoryKey.toLowerCase()}`)}
-            >
-              See More
-            </span>
-          )}
         </div>
 
         <div className="category-products">
-          {showProducts.map(item => (
+          {categoryProducts.slice(0, 4).map((item) => (
             <div
               key={item.id}
               className="category-product-card"
-              onClick={() => navigate(`/product/${item.id}`)}
+              onClick={() =>
+                navigate(`/category-product/${item.id}`)
+              }
             >
-              <img src={item.image} alt={item.name} />
-              <h4>{item.name}</h4>
-              <div className="price">₹{item.price}</div>
+              <img
+                src={item.images?.[0]}
+                alt={item.name}
+              />
+
+              <div className="product-info">
+                <h4>{item.name}</h4>
+
+                {/* Default Rating */}
+                <div className="rating">
+                  <span className="stars">
+                    ★★★★☆
+                  </span>
+                  <span className="rating-number">
+                    {defaultRating}
+                  </span>
+                </div>
+
+                <div className="price">₹{item.price}</div>
+              </div>
             </div>
           ))}
         </div>

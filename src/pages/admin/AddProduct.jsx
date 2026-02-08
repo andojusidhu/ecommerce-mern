@@ -89,8 +89,6 @@
 //   );
 // }
 
-
-
 import { useState } from "react";
 import "./AddProduct.css";
 
@@ -101,37 +99,47 @@ export default function AddProduct() {
     description: "",
     price: "",
     category: "Womens",
-    image: "",
+    images: [],
     sizes: [],
-    colors: ""
+    colors: "",
+    quantity: 1
   });
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    const imageUrls = files.map(file =>
+      URL.createObjectURL(file)
+    );
+
+    setProduct(prev => ({
+      ...prev,
+      images: imageUrls
+    }));
+  };
+
   const handleSizeChange = (size) => {
-    setProduct((prev) => ({
+    setProduct(prev => ({
       ...prev,
       sizes: prev.sizes.includes(size)
-        ? prev.sizes.filter((s) => s !== size)
+        ? prev.sizes.filter(s => s !== size)
         : [...prev.sizes, size]
     }));
   };
 
-  // ✅ Image to Base64
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleAddProduct = () => {
+    if (!product.name || !product.price || product.images.length === 0) {
+      alert("Please fill all required fields");
+      return;
+    }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProduct((prev) => ({ ...prev, image: reader.result }));
-    };
-    reader.readAsDataURL(file);
-  };
+    const existing =
+      JSON.parse(localStorage.getItem("products")) || [];
 
-  const handleAdd = () => {
-    const existing = JSON.parse(localStorage.getItem("products")) || [];
-    existing.push(product);
+    existing.push({ ...product, id: Date.now() });
+
     localStorage.setItem("products", JSON.stringify(existing));
-    alert("Product Added Successfully");
+    alert("Product added successfully");
 
     setProduct({
       id: Date.now(),
@@ -139,9 +147,10 @@ export default function AddProduct() {
       description: "",
       price: "",
       category: "Womens",
-      image: "",
+      images: [],
       sizes: [],
-      colors: ""
+      colors: "",
+      quantity: 1
     });
   };
 
@@ -152,30 +161,54 @@ export default function AddProduct() {
       <input
         placeholder="Product Name"
         value={product.name}
-        onChange={(e) => setProduct({ ...product, name: e.target.value })}
+        onChange={(e) =>
+          setProduct({ ...product, name: e.target.value })
+        }
       />
 
-      {/* ✅ Image input */}
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
+      {/* MULTIPLE IMAGE INPUT */}
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleImageChange}
+      />
 
-      {product.image && <img src={product.image} className="preview" />}
+      {/* IMAGE PREVIEW GRID */}
+      {product.images.length > 0 && (
+        <div className="image-preview-grid">
+          {product.images.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt={`preview-${index}`}
+            />
+          ))}
+        </div>
+      )}
 
       <textarea
         placeholder="Description"
         value={product.description}
-        onChange={(e) => setProduct({ ...product, description: e.target.value })}
+        onChange={(e) =>
+          setProduct({ ...product, description: e.target.value })
+        }
       />
 
       <input
         type="number"
         placeholder="Price"
         value={product.price}
-        onChange={(e) => setProduct({ ...product, price: e.target.value })}
+        onChange={(e) =>
+          setProduct({ ...product, price: e.target.value })
+        }
       />
 
       <select
         value={product.category}
-        onChange={(e) => setProduct({ ...product, category: e.target.value })}
+        onChange={(e) =>
+          setProduct({ ...product, category: e.target.value })
+        }
       >
         <option>Womens</option>
         <option>Girls</option>
@@ -186,7 +219,7 @@ export default function AddProduct() {
 
       <div className="size-box">
         <p>Available Sizes</p>
-        {["S", "M", "L", "XL"].map((size) => (
+        {["S", "M", "L", "XL"].map(size => (
           <label key={size}>
             <input
               type="checkbox"
@@ -201,10 +234,21 @@ export default function AddProduct() {
       <input
         placeholder="Colors (comma separated)"
         value={product.colors}
-        onChange={(e) => setProduct({ ...product, colors: e.target.value })}
+        onChange={(e) =>
+          setProduct({ ...product, colors: e.target.value })
+        }
       />
 
-      <button onClick={handleAdd}>Add Product</button>
+      <input
+        type="number"
+        placeholder="Quantity"
+        value={product.quantity}
+        onChange={(e) =>
+          setProduct({ ...product, quantity: e.target.value })
+        }
+      />
+
+      <button onClick={handleAddProduct}>Add Product</button>
     </div>
   );
 }

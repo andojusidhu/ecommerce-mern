@@ -6,6 +6,7 @@ import AdminNavbar from "./components/AdminNavbar";
 import AdminRoute from "./components/AdminRoute";
 
 /* User Pages */
+import Signup from "./pages/user/Signup";
 import Home from "./pages/user/Home";
 import Categories from "./pages/user/Categories";
 import Search from "./pages/user/Search";
@@ -17,13 +18,15 @@ import Profile from "./pages/user/Profile";
 import ProductDetails from "./pages/user/ProductDetails";
 import Checkout from "./pages/user/Checkout";
 import OrderTracking from "./pages/user/OrderTracking";
+import CategoryProductDetails from "./pages/user/CategoryProductDetails";
+import OrderSuccess from "./pages/user/OrderSuccess";
 
 /* Admin Pages */
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AddProduct from "./pages/admin/AddProduct";
 import ManageProducts from "./pages/admin/ManageProducts";
-import Orders from "./pages/admin/Orders";
+import Orders from "./pages/user/Orders";
 import Users from "./pages/admin/Users";
 
 function Layout() {
@@ -48,6 +51,11 @@ function Layout() {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/track-order" element={<OrderTracking />} />
+        <Route
+  path="/category-product/:id"
+  element={<CategoryProductDetails />}
+/>
+        <Route path="/order-success" element={<OrderSuccess />} />
 
         {/* Admin Entry */}
         <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
@@ -69,6 +77,9 @@ function Layout() {
         <Route path="/admin/users" element={
           <AdminRoute><Users /></AdminRoute>
         } />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/orders" element={<Orders />} />
+         <Route path="/signup" element={<Signup />} />
       </Routes>
     </>
   );
