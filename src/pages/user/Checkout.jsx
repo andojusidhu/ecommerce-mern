@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Checkout.css";
 
 export default function Checkout({ setOrders }) {
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -18,43 +19,46 @@ export default function Checkout({ setOrders }) {
     payment: "COD",
   });
 
-  // Load cart from localStorage
+  // Load cart from navigation state (buy now) or from localStorage
   useEffect(() => {
-    const storedCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(storedCart);
-  }, []);
+    const fromState = location.state?.cart;
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  // Safe price extraction
+    const resolvedCart = Array.isArray(fromState) ? fromState : storedCart;
+    setCartItems(resolvedCart);
+  }, [location.state]);
+
+  // Helper: extract item price safely as Number
   const getItemPrice = (item) => {
-    if (item.price) return Number(item.price);
-    if (item.totalPrice && item.quantity)
-      return Number(item.totalPrice) / item.quantity;
-    if (item.totalPrice) return Number(item.totalPrice);
+    if (item == null) return 0;
+    if (item.price !== undefined && item.price !== null) return Number(item.price) || 0;
+    if (item.totalPrice && item.quantity) return Number(item.totalPrice) / Number(item.quantity);
+    if (item.totalPrice) return Number(item.totalPrice) || 0;
     return 0;
   };
 
   // Total calculation
   const total = cartItems.reduce((sum, item) => {
     const price = getItemPrice(item);
-    const qty = item.quantity || 1;
+    const qty = Number(item.quantity) || 1;
     return sum + price * qty;
   }, 0);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const placeOrder = () => {
+    // Basic validation
     if (!formData.name || !formData.phone || !formData.house) {
-      alert("Please fill all required fields");
+      alert("Please fill all required fields (Name, Phone, House/Flat).");
       return;
     }
 
-    if (cartItems.length === 0) {
+    if (!cartItems.length) {
       alert("No products selected");
       return;
     }
@@ -76,31 +80,39 @@ export default function Checkout({ setOrders }) {
         pincode: formData.pincode,
       },
       payment: formData.payment,
-      items: cartItems,
-      total,
+      items: cartItems.map((it) => ({
+        // ensure item snapshot contains important fields
+        id: it.id,
+        name: it.name,
+        image: it.image || (it.images && it.images[0]) || "",
+        selectedSize: it.selectedSize || "",
+        selectedColor: it.selectedColor || "",
+        quantity: Number(it.quantity) || 1,
+        price: Number(it.price) || getItemPrice(it),
+      })),
+      total: total,
     };
 
-    const existingOrders =
-      JSON.parse(localStorage.getItem("orders")) || [];
-
+    const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
     const updatedOrders = [...existingOrders, newOrder];
 
+    // persist orders
     localStorage.setItem("orders", JSON.stringify(updatedOrders));
 
-    if (setOrders) {
+    // update parent state if provided
+    if (typeof setOrders === "function") {
       setOrders(updatedOrders);
     }
 
-    // Clear cart after order
+    // clear cart
     localStorage.removeItem("cart");
     setCartItems([]);
 
-    // Greeting message
+    // friendly greeting
     alert(`Thank you ${formData.name}! Your order has been placed successfully.`);
 
-    // Navigate to orders page
+    // navigate to orders page and indicate justOrdered (for greeting there)
     navigate("/orders", { state: { justOrdered: true } });
-
   };
 
   return (
@@ -114,18 +126,21 @@ export default function Checkout({ setOrders }) {
           type="text"
           name="name"
           placeholder="Full Name"
+          value={formData.name}
           onChange={handleChange}
         />
         <input
           type="text"
           name="phone"
           placeholder="Phone Number"
+          value={formData.phone}
           onChange={handleChange}
         />
         <input
           type="email"
           name="email"
           placeholder="Email"
+          value={formData.email}
           onChange={handleChange}
         />
       </section>
@@ -137,30 +152,35 @@ export default function Checkout({ setOrders }) {
           type="text"
           name="house"
           placeholder="House/Flat No."
+          value={formData.house}
           onChange={handleChange}
         />
         <input
           type="text"
           name="street"
           placeholder="Street/Area"
+          value={formData.street}
           onChange={handleChange}
         />
         <input
           type="text"
           name="city"
           placeholder="City"
+          value={formData.city}
           onChange={handleChange}
         />
         <input
           type="text"
           name="state"
           placeholder="State"
+          value={formData.state}
           onChange={handleChange}
         />
         <input
           type="text"
           name="pincode"
           placeholder="Pincode"
+          value={formData.pincode}
           onChange={handleChange}
         />
       </section>
@@ -168,7 +188,7 @@ export default function Checkout({ setOrders }) {
       {/* Payment */}
       <section className="checkout-section">
         <h3>Payment Method</h3>
-        <select name="payment" onChange={handleChange}>
+        <select name="payment" value={formData.payment} onChange={handleChange}>
           <option value="COD">Cash on Delivery</option>
           <option value="UPI">UPI</option>
           <option value="Card">Card</option>
@@ -184,14 +204,30 @@ export default function Checkout({ setOrders }) {
         ) : (
           cartItems.map((item, index) => {
             const price = getItemPrice(item);
-            const qty = item.quantity || 1;
+            const qty = Number(item.quantity) || 1;
 
             return (
               <div key={index} className="summary-item">
-                <span>{item.name}</span>
-                <span>
-                  {qty} × ₹{price}
-                </span>
+                <div className="summary-left">
+                  <img
+                    src={item.image || (item.images && item.images[0]) || "/placeholder.png"}
+                    alt={item.name}
+                    className="summary-img"
+                  />
+                  <div className="summary-meta">
+                    <div className="summary-name">{item.name}</div>
+                    <div className="summary-opts">
+                      {item.selectedSize && <span>Size: {item.selectedSize}</span>}
+                      {item.selectedColor && <span>Color: {item.selectedColor}</span>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="summary-right">
+                  <span>
+                    {qty} × ₹{price}
+                  </span>
+                </div>
               </div>
             );
           })

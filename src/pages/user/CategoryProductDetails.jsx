@@ -9,9 +9,7 @@ export default function CategoryProductDetails() {
   const products = JSON.parse(localStorage.getItem("products")) || [];
   const product = products.find((p) => String(p.id) === id);
 
-  const [selectedSize, setSelectedSize] = useState(
-    product?.sizes?.[0] || ""
-  );
+  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || "");
   const [selectedColor, setSelectedColor] = useState(
     product?.colors?.split(",")[0] || ""
   );
@@ -21,21 +19,8 @@ export default function CategoryProductDetails() {
     return <div className="product-details-box">Product not found</div>;
   }
 
-  const handleBuyNow = () => {
-    const orderData = {
-      ...product,
-      selectedSize,
-      selectedColor,
-      quantity: 1,
-      totalPrice: Number(product.price)
-    };
-    navigate("/checkout", { state: { product: orderData } });
-  };
-
-  const handleAddToCart = () => {
-    const existingCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
-
+  const addToCartOrBuy = (isBuyNow) => {
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
     const existingIndex = existingCart.findIndex(
       (item) =>
         item.id === product.id &&
@@ -44,35 +29,35 @@ export default function CategoryProductDetails() {
     );
 
     if (existingIndex !== -1) {
-      // Increase quantity if already exists
       existingCart[existingIndex].quantity += 1;
     } else {
-      // Add new item
       existingCart.push({
         ...product,
         price: Number(product.price),
         selectedSize,
         selectedColor,
-        quantity: 1
+        quantity: 1,
       });
     }
 
     localStorage.setItem("cart", JSON.stringify(existingCart));
-    alert("Added to cart");
+
+    if (isBuyNow) {
+      navigate("/checkout", { state: { cart: existingCart } });
+    } else {
+      alert("Added to cart");
+    }
   };
 
   const images = product.images || [];
 
   return (
     <div className="product-details-box">
-      {/* Image Slider */}
       <div className="image-slider">
         <button
           className="prev-btn"
           onClick={() =>
-            setCurrentImage(
-              (prev) => (prev - 1 + images.length) % images.length
-            )
+            setCurrentImage((prev) => (prev - 1 + images.length) % images.length)
           }
         >
           ◀
@@ -86,7 +71,7 @@ export default function CategoryProductDetails() {
               alt={product.name}
               style={{
                 transform: `translateX(-${currentImage * 100}%)`,
-                transition: "transform 0.5s ease-in-out"
+                transition: "transform 0.5s ease-in-out",
               }}
             />
           ))}
@@ -94,15 +79,12 @@ export default function CategoryProductDetails() {
 
         <button
           className="next-btn"
-          onClick={() =>
-            setCurrentImage((prev) => (prev + 1) % images.length)
-          }
+          onClick={() => setCurrentImage((prev) => (prev + 1) % images.length)}
         >
           ▶
         </button>
       </div>
 
-      {/* Thumbnails */}
       {images.length > 1 && (
         <div className="thumbnail-strip">
           {images.map((img, index) => (
@@ -110,22 +92,18 @@ export default function CategoryProductDetails() {
               key={index}
               src={img}
               alt="thumb"
-              className={`thumbnail ${
-                currentImage === index ? "active" : ""
-              }`}
+              className={`thumbnail ${currentImage === index ? "active" : ""}`}
               onClick={() => setCurrentImage(index)}
             />
           ))}
         </div>
       )}
 
-      {/* Product Details */}
       <div className="details">
         <h2>{product.name}</h2>
         <p className="price">₹{product.price}</p>
         <p className="description">{product.description}</p>
 
-        {/* Size Selection */}
         {product.sizes?.length > 0 && (
           <div className="option-group">
             <p>Size:</p>
@@ -141,16 +119,13 @@ export default function CategoryProductDetails() {
           </div>
         )}
 
-        {/* Color Selection */}
         {product.colors && (
           <div className="option-group">
             <p>Color:</p>
             {product.colors.split(",").map((color) => (
               <button
                 key={color}
-                className={
-                  selectedColor === color ? "active" : ""
-                }
+                className={selectedColor === color ? "active" : ""}
                 onClick={() => setSelectedColor(color)}
               >
                 {color}
@@ -159,12 +134,11 @@ export default function CategoryProductDetails() {
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="action-buttons">
-          <button className="buy-btn" onClick={handleBuyNow}>
+          <button className="buy-btn" onClick={() => addToCartOrBuy(true)}>
             Buy Now
           </button>
-          <button className="cart-btn" onClick={handleAddToCart}>
+          <button className="cart-btn" onClick={() => addToCartOrBuy(false)}>
             Add to Cart
           </button>
         </div>
