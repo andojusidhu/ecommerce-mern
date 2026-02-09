@@ -1,22 +1,34 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import "./Orders.css";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editForm, setEditForm] = useState({});
-  const location = useLocation();
 
   useEffect(() => {
-    const storedOrders = JSON.parse(localStorage.getItem("orders")) || [];
-    setOrders(storedOrders);
+    const fetchOrders = async () => {
+      const token = localStorage.getItem("token");
 
-    // Greeting message after order placement
-    if (location.state?.justOrdered) {
-      alert("Your order has been placed successfully!");
-    }
-  }, [location.state]);
+      try {
+        let data;
+        if (token) {
+          const res = await fetch("http://localhost:5000/api/orders/my-orders", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          data = await res.json();
+        } else {
+          const res = await fetch("http://localhost:5000/api/orders");
+          data = await res.json();
+        }
+        setOrders(data);
+      } catch (err) {
+        console.error("Fetch orders error:", err);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const handleEdit = (index) => {
     const order = orders[index];
@@ -24,251 +36,155 @@ export default function Orders() {
 
     setEditingIndex(index);
     setEditForm({
+      orderId: order._id,
       productName: item.name || "",
       selectedSize: item.selectedSize || "",
       selectedColor: item.selectedColor || "",
       quantity: item.quantity || 1,
-      totalPrice: order.total || 0,
-      customerName: order.customer?.name || "",
-      street: order.address?.street || "",
-      address: order.address?.house || "",
-      pincode: order.address?.pincode || "",
+      totalPrice: order.totalAmount || 0,
+      delivery: { ...order.delivery },
     });
   };
 
-  const handleSave = (index) => {
-    const updatedOrders = [...orders];
-    const existingOrder = updatedOrders[index];
-
+  const handleSave = async (index) => {
+    const orderId = editForm.orderId;
     const updatedOrder = {
-      ...existingOrder,
-      customer: {
-        ...existingOrder.customer,
-        name: editForm.customerName,
-      },
-      address: {
-        ...existingOrder.address,
-        house: editForm.address,
-        street: editForm.street,
-        pincode: editForm.pincode,
-      },
-      total: editForm.totalPrice,
+      delivery: editForm.delivery,
       items: [
         {
-          ...existingOrder.items[0],
+          ...orders[index].items[0],
           name: editForm.productName,
           selectedSize: editForm.selectedSize,
           selectedColor: editForm.selectedColor,
           quantity: editForm.quantity,
+          price: editForm.totalPrice,
         },
       ],
+      totalAmount: editForm.totalPrice,
     };
 
-    updatedOrders[index] = updatedOrder;
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedOrder),
+      });
+      const data = await res.json();
 
-    localStorage.setItem("orders", JSON.stringify(updatedOrders));
-    setOrders(updatedOrders);
-    setEditingIndex(null);
+      const updatedOrders = [...orders];
+      updatedOrders[index] = data;
+      setOrders(updatedOrders);
+      setEditingIndex(null);
+    } catch (err) {
+      console.error("Update order error:", err);
+    }
   };
 
   return (
     <div className="orders-container">
       <h2>My Orders</h2>
-
       {orders.length === 0 && <p>No orders yet.</p>}
 
       {orders.map((order, index) => {
         const item = order.items?.[0] || {};
-
         return (
-          <div className="order-card" key={index}>
+          <div className="order-card" key={order._id}>
             <div className="order-header">
+              {/* Product Image styled like categories */}
               <img
-                src={item.image || "/placeholder.png"}
+                src={item.product?.images?.[0] || item.image || "/placeholder.png"}
                 alt={item.name || "Product"}
                 className="order-image"
+                style={{
+                  width: "220px",
+                  height: "220px",
+                  borderRadius: "12px",
+                  objectFit: "cover",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+                }}
               />
 
               {editingIndex === index ? (
                 <div className="order-edit-form">
                   <h3>Edit Product & Delivery Details</h3>
-
-                  <div className="form-group">
-                    <label>Product Name:</label>
-                    <input
-                      type="text"
-                      value={editForm.productName}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          productName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Size:</label>
-                    <input
-                      type="text"
-                      value={editForm.selectedSize}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          selectedSize: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Color:</label>
-                    <input
-                      type="text"
-                      value={editForm.selectedColor}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          selectedColor: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Quantity:</label>
-                    <input
-                      type="number"
-                      value={editForm.quantity}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          quantity: Number(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Total Price:</label>
-                    <input
-                      type="number"
-                      value={editForm.totalPrice}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          totalPrice: Number(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={editForm.productName}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, productName: e.target.value })
+                    }
+                    placeholder="Product Name"
+                  />
+                  <input
+                    type="text"
+                    value={editForm.selectedSize}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, selectedSize: e.target.value })
+                    }
+                    placeholder="Size"
+                  />
+                  <input
+                    type="text"
+                    value={editForm.selectedColor}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, selectedColor: e.target.value })
+                    }
+                    placeholder="Color"
+                  />
+                  <input
+                    type="number"
+                    value={editForm.quantity}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, quantity: Number(e.target.value) })
+                    }
+                    placeholder="Quantity"
+                  />
+                  <input
+                    type="number"
+                    value={editForm.totalPrice}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, totalPrice: Number(e.target.value) })
+                    }
+                    placeholder="Total Price"
+                  />
 
                   <h4>Delivery Details</h4>
-
-                  <div className="form-group">
-                    <label>Full Name:</label>
+                  {["name","phone","house","street","city","state","pincode"].map((field) => (
                     <input
+                      key={field}
                       type="text"
-                      value={editForm.customerName}
+                      value={editForm.delivery?.[field] || ""}
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
-                          customerName: e.target.value,
+                          delivery: { ...editForm.delivery, [field]: e.target.value },
                         })
                       }
+                      placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                     />
-                  </div>
+                  ))}
 
-                  <div className="form-group">
-                    <label>Street:</label>
-                    <input
-                      type="text"
-                      value={editForm.street}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          street: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>House/Flat:</label>
-                    <input
-                      type="text"
-                      value={editForm.address}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          address: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Pincode:</label>
-                    <input
-                      type="text"
-                      value={editForm.pincode}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          pincode: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-actions">
-                    <button onClick={() => handleSave(index)}>
-                      Save
-                    </button>
-                  </div>
+                  <button className="save-btn" onClick={() => handleSave(index)}>Save</button>
                 </div>
               ) : (
                 <div className="order-details">
                   <h3>Product Details</h3>
-                  <p>
-                    <strong>Name:</strong> {item.name}
-                  </p>
-                  <p>
-                    <strong>Size:</strong> {item.selectedSize}
-                  </p>
-                  <p>
-                    <strong>Color:</strong> {item.selectedColor}
-                  </p>
-                  <p>
-                    <strong>Quantity:</strong> {item.quantity}
-                  </p>
-                  <p>
-                    <strong>Total Price:</strong> ₹{order.total}
-                  </p>
+                  <p>Name: {item.name}</p>
+                  <p>Size: {item.selectedSize}</p>
+                  <p>Color: {item.selectedColor}</p>
+                  <p>Quantity: {item.quantity}</p>
+                  <p>Total: ₹{order.totalAmount}</p>
 
                   <h3>Delivery Details</h3>
-                  <p>
-                    <strong>Full Name:</strong>{" "}
-                    {order.customer?.name}
-                  </p>
-                  <p>
-                    <strong>Street:</strong>{" "}
-                    {order.address?.street}
-                  </p>
-                  <p>
-                    <strong>House:</strong>{" "}
-                    {order.address?.house}
-                  </p>
-                  <p>
-                    <strong>Pincode:</strong>{" "}
-                    {order.address?.pincode}
-                  </p>
+                  <p>Name: {order.delivery?.name}</p>
+                  <p>Phone: {order.delivery?.phone}</p>
+                  <p>House: {order.delivery?.house}</p>
+                  <p>Street: {order.delivery?.street}</p>
+                  <p>City: {order.delivery?.city}</p>
+                  <p>State: {order.delivery?.state}</p>
+                  <p>Pincode: {order.delivery?.pincode}</p>
 
-                  <div className="form-actions">
-                    <button onClick={() => handleEdit(index)}>
-                      Edit
-                    </button>
-                  </div>
+                  <button className="edit-btn" onClick={() => handleEdit(index)}>Edit</button>
                 </div>
               )}
             </div>

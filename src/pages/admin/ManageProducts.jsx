@@ -6,25 +6,31 @@ const SIZE_OPTIONS = ["S", "M", "L", "XL"];
 export default function ManageProducts() {
   const [products, setProducts] = useState([]);
 
+  // fetch products from backend
+  const fetchProducts = async () => {
+    const res = await fetch("http://localhost:5000/api/products");
+    const data = await res.json();
+    setProducts(data);
+  };
+
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("products")) || [];
-    setProducts(stored);
+    fetchProducts();
   }, []);
 
-  // Handle field change (local state only)
+  // handle field change (local state only)
   const handleChange = (id, field, value) => {
     setProducts((prev) =>
       prev.map((p) =>
-        p.id === id ? { ...p, [field]: value } : p
+        p._id === id ? { ...p, [field]: value } : p
       )
     );
   };
 
-  // Toggle sizes (local state only)
+  // toggle sizes
   const toggleSize = (id, size) => {
     setProducts((prev) =>
       prev.map((p) => {
-        if (p.id !== id) return p;
+        if (p._id !== id) return p;
 
         const sizes = p.sizes?.includes(size)
           ? p.sizes.filter((s) => s !== size)
@@ -35,19 +41,47 @@ export default function ManageProducts() {
     );
   };
 
-  // ✅ Update button
-  const updateProduct = (id) => {
-    localStorage.setItem("products", JSON.stringify(products));
-    alert("Product updated successfully");
+  // update product
+  const updateProduct = async (id) => {
+    const product = products.find((p) => p._id === id);
+
+    const res = await fetch(
+      `http://localhost:5000/api/products/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(product),
+      }
+    );
+
+    if (res.ok) {
+      alert("Product updated successfully");
+      fetchProducts();
+    } else {
+      alert("Update failed");
+    }
   };
 
-  // ✅ Remove single product
-  const removeProduct = (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  // delete product
+  const removeProduct = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
 
-    const updated = products.filter((p) => p.id !== id);
-    setProducts(updated);
-    localStorage.setItem("products", JSON.stringify(updated));
+    const res = await fetch(
+      `http://localhost:5000/api/products/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (res.ok) {
+      alert("Product deleted");
+      fetchProducts();
+    } else {
+      alert("Delete failed");
+    }
   };
 
   return (
@@ -59,7 +93,7 @@ export default function ManageProducts() {
       ) : (
         <div className="admin-product-grid">
           {products.map((product) => (
-            <div key={product.id} className="admin-product-card">
+            <div key={product._id} className="admin-product-card">
               <img src={product.images?.[0]} alt={product.name} />
 
               <h4>{product.name}</h4>
@@ -74,7 +108,7 @@ export default function ManageProducts() {
                   min="0"
                   value={product.quantity ?? 0}
                   onChange={(e) =>
-                    handleChange(product.id, "quantity", e.target.value)
+                    handleChange(product._id, "quantity", e.target.value)
                   }
                 />
               </div>
@@ -86,7 +120,7 @@ export default function ManageProducts() {
                   type="text"
                   value={product.colors || ""}
                   onChange={(e) =>
-                    handleChange(product.id, "colors", e.target.value)
+                    handleChange(product._id, "colors", e.target.value)
                   }
                 />
               </div>
@@ -98,7 +132,7 @@ export default function ManageProducts() {
                     <input
                       type="checkbox"
                       checked={product.sizes?.includes(size) || false}
-                      onChange={() => toggleSize(product.id, size)}
+                      onChange={() => toggleSize(product._id, size)}
                     />
                     {size}
                   </label>
@@ -109,14 +143,14 @@ export default function ManageProducts() {
               <div className="admin-actions">
                 <button
                   className="update-btn"
-                  onClick={() => updateProduct(product.id)}
+                  onClick={() => updateProduct(product._id)}
                 >
                   Update
                 </button>
 
                 <button
                   className="delete-btn"
-                  onClick={() => removeProduct(product.id)}
+                  onClick={() => removeProduct(product._id)}
                 >
                   Remove
                 </button>

@@ -1,51 +1,79 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./CategoryProductDetails.css";
 
 export default function CategoryProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const products = JSON.parse(localStorage.getItem("products")) || [];
-  const product = products.find((p) => String(p.id) === id);
-
-  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || "");
-  const [selectedColor, setSelectedColor] = useState(
-    product?.colors?.split(",")[0] || ""
-  );
+  const [product, setProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  // 🔹 FETCH PRODUCT FROM MONGODB
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/products/${id}`
+        );
+        const data = await res.json();
+
+        setProduct(data);
+        setSelectedSize(data?.sizes?.[0] || "");
+        setSelectedColor(data?.colors?.[0] || "");
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return <div className="product-details-box">Loading...</div>;
+  }
 
   if (!product) {
     return <div className="product-details-box">Product not found</div>;
   }
 
+  // 🔹 ADD TO CART / BUY NOW
   const addToCartOrBuy = (isBuyNow) => {
+    const cartItem = {
+      ...product,
+      price: Number(product.price),
+      selectedSize,
+      selectedColor,
+      quantity: 1,
+    };
+
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+
     const existingIndex = existingCart.findIndex(
       (item) =>
-        item.id === product.id &&
+        item._id === product._id &&
         item.selectedSize === selectedSize &&
         item.selectedColor === selectedColor
     );
 
-    if (existingIndex !== -1) {
-      existingCart[existingIndex].quantity += 1;
-    } else {
-      existingCart.push({
-        ...product,
-        price: Number(product.price),
-        selectedSize,
-        selectedColor,
-        quantity: 1,
-      });
-    }
+    if (!isBuyNow) {
+      // Add to cart logic
+      if (existingIndex !== -1) {
+        existingCart[existingIndex].quantity += 1;
+      } else {
+        existingCart.push(cartItem);
+      }
 
-    localStorage.setItem("cart", JSON.stringify(existingCart));
-
-    if (isBuyNow) {
-      navigate("/checkout", { state: { cart: existingCart } });
-    } else {
+      localStorage.setItem("cart", JSON.stringify(existingCart));
       alert("Added to cart");
+    } else {
+      // Buy now → send only this product
+      navigate("/checkout", { state: { cart: [cartItem] } });
     }
   };
 
@@ -53,11 +81,14 @@ export default function CategoryProductDetails() {
 
   return (
     <div className="product-details-box">
+      {/* IMAGE SLIDER */}
       <div className="image-slider">
         <button
           className="prev-btn"
           onClick={() =>
-            setCurrentImage((prev) => (prev - 1 + images.length) % images.length)
+            setCurrentImage(
+              (prev) => (prev - 1 + images.length) % images.length
+            )
           }
         >
           ◀
@@ -79,12 +110,15 @@ export default function CategoryProductDetails() {
 
         <button
           className="next-btn"
-          onClick={() => setCurrentImage((prev) => (prev + 1) % images.length)}
+          onClick={() =>
+            setCurrentImage((prev) => (prev + 1) % images.length)
+          }
         >
           ▶
         </button>
       </div>
 
+      {/* THUMBNAILS */}
       {images.length > 1 && (
         <div className="thumbnail-strip">
           {images.map((img, index) => (
@@ -92,13 +126,16 @@ export default function CategoryProductDetails() {
               key={index}
               src={img}
               alt="thumb"
-              className={`thumbnail ${currentImage === index ? "active" : ""}`}
+              className={`thumbnail ${
+                currentImage === index ? "active" : ""
+              }`}
               onClick={() => setCurrentImage(index)}
             />
           ))}
         </div>
       )}
 
+      {/* PRODUCT DETAILS */}
       <div className="details">
         <h2>{product.name}</h2>
         <p className="price">₹{product.price}</p>
@@ -119,10 +156,10 @@ export default function CategoryProductDetails() {
           </div>
         )}
 
-        {product.colors && (
+        {product.colors?.length > 0 && (
           <div className="option-group">
             <p>Color:</p>
-            {product.colors.split(",").map((color) => (
+            {product.colors.map((color) => (
               <button
                 key={color}
                 className={selectedColor === color ? "active" : ""}

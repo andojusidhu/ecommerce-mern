@@ -19,25 +19,22 @@ export default function Checkout({ setOrders }) {
     payment: "COD",
   });
 
-  // Load cart from navigation state (buy now) or from localStorage
+  // Load cart from localStorage or "Buy Now"
   useEffect(() => {
     const fromState = location.state?.cart;
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    const resolvedCart = Array.isArray(fromState) ? fromState : storedCart;
-    setCartItems(resolvedCart);
+    setCartItems(Array.isArray(fromState) ? fromState : storedCart);
   }, [location.state]);
 
-  // Helper: extract item price safely as Number
   const getItemPrice = (item) => {
-    if (item == null) return 0;
-    if (item.price !== undefined && item.price !== null) return Number(item.price) || 0;
-    if (item.totalPrice && item.quantity) return Number(item.totalPrice) / Number(item.quantity);
+    if (!item) return 0;
+    if (item.price !== undefined) return Number(item.price) || 0;
+    if (item.totalPrice && item.quantity)
+      return Number(item.totalPrice) / Number(item.quantity);
     if (item.totalPrice) return Number(item.totalPrice) || 0;
     return 0;
   };
 
-  // Total calculation
   const total = cartItems.reduce((sum, item) => {
     const price = getItemPrice(item);
     const qty = Number(item.quantity) || 1;
@@ -51,10 +48,9 @@ export default function Checkout({ setOrders }) {
     }));
   };
 
-  const placeOrder = () => {
-    // Basic validation
+  const placeOrder = async () => {
     if (!formData.name || !formData.phone || !formData.house) {
-      alert("Please fill all required fields (Name, Phone, House/Flat).");
+      alert("Please fill required fields");
       return;
     }
 
@@ -63,16 +59,13 @@ export default function Checkout({ setOrders }) {
       return;
     }
 
-    const newOrder = {
-      id: "ORD" + Date.now(),
-      date: new Date().toLocaleString(),
-      status: "Placed",
-      customer: {
+    const token = localStorage.getItem("token");
+
+    const orderPayload = {
+      delivery: {
         name: formData.name,
         phone: formData.phone,
         email: formData.email,
-      },
-      address: {
         house: formData.house,
         street: formData.street,
         city: formData.city,
@@ -80,39 +73,45 @@ export default function Checkout({ setOrders }) {
         pincode: formData.pincode,
       },
       payment: formData.payment,
-      items: cartItems.map((it) => ({
-        // ensure item snapshot contains important fields
-        id: it.id,
-        name: it.name,
-        image: it.image || (it.images && it.images[0]) || "",
-        selectedSize: it.selectedSize || "",
-        selectedColor: it.selectedColor || "",
-        quantity: Number(it.quantity) || 1,
-        price: Number(it.price) || getItemPrice(it),
+      items: cartItems.map((item) => ({
+        productId: item._id,
+        name: item.name,
+        image: item.images?.[0] || "", // Cloudinary image
+        selectedSize: item.selectedSize || "",
+        selectedColor: item.selectedColor || "",
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || getItemPrice(item),
       })),
-      total: total,
+      totalAmount: total,
     };
 
-    const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
-    const updatedOrders = [...existingOrders, newOrder];
+    try {
+      const res = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }), // include token only if logged in
+        },
+        body: JSON.stringify(orderPayload),
+      });
 
-    // persist orders
-    localStorage.setItem("orders", JSON.stringify(updatedOrders));
+      const data = await res.json();
 
-    // update parent state if provided
-    if (typeof setOrders === "function") {
-      setOrders(updatedOrders);
+      if (!res.ok) throw new Error(data.message || "Order failed");
+
+      // Update parent state
+      if (typeof setOrders === "function") setOrders((prev) => [...prev, data]);
+
+      // Clear cart
+      localStorage.removeItem("cart");
+      setCartItems([]);
+
+      alert(`Thank you ${formData.name}! Your order has been placed successfully.`);
+      navigate("/orders", { state: { justOrdered: true } });
+    } catch (err) {
+      console.error("Order error:", err);
+      alert(err.message || "Failed to place order");
     }
-
-    // clear cart
-    localStorage.removeItem("cart");
-    setCartItems([]);
-
-    // friendly greeting
-    alert(`Thank you ${formData.name}! Your order has been placed successfully.`);
-
-    // navigate to orders page and indicate justOrdered (for greeting there)
-    navigate("/orders", { state: { justOrdered: true } });
   };
 
   return (
@@ -122,67 +121,19 @@ export default function Checkout({ setOrders }) {
       {/* Customer Details */}
       <section className="checkout-section">
         <h3>Customer Details</h3>
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-        />
+        <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
+        <input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
       </section>
 
       {/* Address */}
       <section className="checkout-section">
         <h3>Delivery Address</h3>
-        <input
-          type="text"
-          name="house"
-          placeholder="House/Flat No."
-          value={formData.house}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="street"
-          placeholder="Street/Area"
-          value={formData.street}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="city"
-          placeholder="City"
-          value={formData.city}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="state"
-          placeholder="State"
-          value={formData.state}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="pincode"
-          placeholder="Pincode"
-          value={formData.pincode}
-          onChange={handleChange}
-        />
+        <input type="text" name="house" placeholder="House/Flat No." value={formData.house} onChange={handleChange} />
+        <input type="text" name="street" placeholder="Street/Area" value={formData.street} onChange={handleChange} />
+        <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} />
+        <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} />
+        <input type="text" name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleChange} />
       </section>
 
       {/* Payment */}
@@ -198,7 +149,6 @@ export default function Checkout({ setOrders }) {
       {/* Order Summary */}
       <section className="checkout-section">
         <h3>Order Summary</h3>
-
         {cartItems.length === 0 ? (
           <p>No products selected</p>
         ) : (
@@ -209,11 +159,7 @@ export default function Checkout({ setOrders }) {
             return (
               <div key={index} className="summary-item">
                 <div className="summary-left">
-                  <img
-                    src={item.image || (item.images && item.images[0]) || "/placeholder.png"}
-                    alt={item.name}
-                    className="summary-img"
-                  />
+                  <img src={item.images?.[0] || "/placeholder.png"} alt={item.name} className="summary-img" />
                   <div className="summary-meta">
                     <div className="summary-name">{item.name}</div>
                     <div className="summary-opts">
@@ -222,23 +168,17 @@ export default function Checkout({ setOrders }) {
                     </div>
                   </div>
                 </div>
-
                 <div className="summary-right">
-                  <span>
-                    {qty} × ₹{price}
-                  </span>
+                  <span>{qty} × ₹{price}</span>
                 </div>
               </div>
             );
           })
         )}
-
         <h4>Total: ₹{total}</h4>
       </section>
 
-      <button className="place-order-btn" onClick={placeOrder}>
-        Place Order
-      </button>
+      <button className="place-order-btn" onClick={placeOrder}>Place Order</button>
     </div>
   );
 }

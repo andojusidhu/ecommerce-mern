@@ -4,24 +4,20 @@ import "./Home.css";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
-  const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedProducts =
-      JSON.parse(localStorage.getItem("products")) || [];
-    const storedCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+      .catch((err) => console.error("Failed to fetch products", err));
 
-    setProducts(storedProducts);
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(storedCart);
   }, []);
-
-  const toggleCart = () => {
-    setCartOpen(!cartOpen);
-  };
 
   const updateCartStorage = (updatedCart) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -30,10 +26,7 @@ export default function Home() {
 
   const addToCart = (product) => {
     let updatedCart = [...cart];
-
-    const existing = updatedCart.find(
-      (item) => item.id === product.id
-    );
+    const existing = updatedCart.find((item) => item._id === product._id);
 
     if (existing) {
       existing.quantity += 1;
@@ -46,9 +39,7 @@ export default function Home() {
 
   const increaseQty = (id) => {
     const updatedCart = cart.map((item) =>
-      item.id === id
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
+      item._id === id ? { ...item, quantity: item.quantity + 1 } : item
     );
     updateCartStorage(updatedCart);
   };
@@ -56,17 +47,14 @@ export default function Home() {
   const decreaseQty = (id) => {
     const updatedCart = cart
       .map((item) =>
-        item.id === id
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
+        item._id === id ? { ...item, quantity: item.quantity - 1 } : item
       )
       .filter((item) => item.quantity > 0);
-
     updateCartStorage(updatedCart);
   };
 
   const removeItem = (id) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
+    const updatedCart = cart.filter((item) => item._id !== id);
     updateCartStorage(updatedCart);
   };
 
@@ -75,57 +63,89 @@ export default function Home() {
     0
   );
 
+  const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const newlyArrived = filteredProducts.slice(0, 4);
+  const trending = filteredProducts.slice(4, 8);
+
   const renderSection = (title, items) => (
-    <div className="section">
-      <h2>{title}</h2>
-      <div className="product-grid">
+    <div className="category-block">
+      <div className="category-header">
+        <h2>{title}</h2>
+      </div>
+      <div className="category-products">
         {items.map((product) => (
-          <div key={product.id} className="product-card">
-            <div className="product-image">
-              <img
-                src={product.image || product.images?.[0]}
-                alt={product.name}
-              />
-            </div>
-            <div className="product-info">
-              <h4>{product.name}</h4>
-              <p className="price">₹{product.price}</p>
-              <button onClick={() => addToCart(product)}>
-                Add to Cart
-              </button>
-            </div>
+          <div
+            key={product._id}
+            className="category-product-card"
+            onClick={() =>
+              navigate(`/categoryproductdetails/${product._id}`, {
+                state: { product },
+              })
+            }
+          >
+            <img
+              src={product.images?.[0] || "/placeholder.png"}
+              alt={product.name}
+            />
+            <h4>{product.name}</h4>
+            {product.rating && (
+              <div className="rating">
+                <span className="stars">★ {product.rating}</span>
+                <span className="rating-number">({product.reviews || 0})</span>
+              </div>
+            )}
+            <p className="price">₹{product.price}</p>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(product);
+              }}
+            >
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>
     </div>
   );
 
-  const newlyArrived = filteredProducts.slice(0, 4);
-  const trending = filteredProducts.slice(4, 8);
-
-  // ✅ UPDATED BUY NOW HANDLER
   const handleBuyNow = () => {
     if (!cart.length) return;
-
     localStorage.setItem("cart", JSON.stringify(cart));
     navigate("/checkout", { state: { cart } });
   };
 
   return (
     <div className="home-container">
-      {/* Top bar */}
+      {/* Top Bar */}
       <div className="top-bar">
         <h1 className="logo">Iconic Era</h1>
-
-        <div className="cart-icon" onClick={toggleCart}>
-          🛒
-          {cart.length > 0 && (
-            <span className="cart-count">{cart.length}</span>
-          )}
+        <div className="right-top">
+          <a
+            href="https://wa.me/919704733035"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whatsapp-icon"
+          >
+            <img
+              src="https://png.pngtree.com/png-clipart/20190516/original/pngtree-whatsapp-icon-png-image_3584844.jpg"
+              alt="WhatsApp"
+            />
+          </a>
+          <div
+            className="cart-icon"
+            onClick={() => cart.length && setCartOpen(!cartOpen)}
+          >
+            🛒
+            {totalCartItems > 0 && (
+              <span className="cart-count">{totalCartItems}</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -139,81 +159,63 @@ export default function Home() {
         />
       </div>
 
-      {/* Festival boxes */}
+      {/* Festival Section */}
       <div className="festival-section">
         <div className="festival-box">🎉 Festival Offer</div>
         <div className="festival-box">💖 Special Deal</div>
         <div className="festival-box">🔥 Limited Time</div>
       </div>
 
+      {/* Product Sections */}
       {renderSection("Newly Arrived", newlyArrived)}
       {renderSection("Trending Items", trending)}
 
-      {/* CART PANEL */}
-      <div className={`cart-panel ${cartOpen ? "open" : ""}`}>
-        <div className="cart-header">
-          <h3>Your Cart</h3>
-          <button
-            className="close-cart"
-            onClick={() => setCartOpen(false)}
-          >
-            ← Back
-          </button>
-        </div>
+      {/* Cart Panel */}
+      {cartOpen && (
+        <div className="cart-panel">
+          <div className="cart-header">
+            <h3>Your Cart</h3>
+            <button className="close-cart" onClick={() => setCartOpen(false)}>
+              ← Back
+            </button>
+          </div>
 
-        {cart.length === 0 ? (
-          <p className="empty-cart">No items in cart</p>
-        ) : (
-          <>
-            <div className="cart-items">
-              {cart.map((item) => (
-                <div key={item.id} className="cart-item">
-                  <img
-                    src={item.image || item.images?.[0]}
-                    alt={item.name}
-                  />
-
-                  <div className="cart-info">
-                    <h4>{item.name}</h4>
-                    <p>₹{item.price}</p>
-
-                    <div className="qty-controls">
-                      <button
-                        onClick={() => decreaseQty(item.id)}
-                      >
-                        −
-                      </button>
-                      <span>{item.quantity}</span>
-                      <button
-                        onClick={() => increaseQty(item.id)}
-                      >
-                        +
-                      </button>
+          {cart.length === 0 ? (
+            <p className="empty-cart">No items in cart</p>
+          ) : (
+            <>
+              <div className="cart-items">
+                {cart.map((item) => (
+                  <div key={item._id} className="cart-item">
+                    <img src={item.images?.[0] || item.image} alt={item.name} />
+                    <div className="cart-info">
+                      <h4>{item.name}</h4>
+                      <p>₹{item.price}</p>
+                      <div className="qty-controls">
+                        <button onClick={() => decreaseQty(item._id)}>−</button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => increaseQty(item._id)}>+</button>
+                      </div>
                     </div>
+                    <button
+                      className="remove-btn"
+                      onClick={() => removeItem(item._id)}
+                    >
+                      ✕
+                    </button>
                   </div>
-
-                  <button
-                    className="remove-btn"
-                    onClick={() => removeItem(item.id)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="cart-footer">
-              <h4>Total: ₹{totalPrice}</h4>
-              <button
-                className="checkout-btn"
-                onClick={handleBuyNow}
-              >
-                Buy Now
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+                ))}
+              </div>
+              <div className="cart-footer">
+                <h4>Total: ₹{totalPrice}</h4>
+                <button className="checkout-btn" onClick={handleBuyNow}>
+                  Buy Now
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

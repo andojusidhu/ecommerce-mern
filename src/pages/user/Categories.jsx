@@ -6,11 +6,19 @@ export default function Categories() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
 
-  // Load products from localStorage
+  // Load products from backend (MongoDB)
   useEffect(() => {
-    const storedProducts =
-      JSON.parse(localStorage.getItem("products")) || [];
-    setProducts(storedProducts);
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/products");
+        const data = await res.json();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // Default rating
@@ -33,10 +41,10 @@ export default function Categories() {
         <div className="category-products">
           {categoryProducts.slice(0, 4).map((item) => (
             <div
-              key={item.id}
+              key={item._id}   // changed from id to _id
               className="category-product-card"
               onClick={() =>
-                navigate(`/category-product/${item.id}`)
+                navigate(`/category-product/${item._id}`)
               }
             >
               <img
@@ -47,11 +55,8 @@ export default function Categories() {
               <div className="product-info">
                 <h4>{item.name}</h4>
 
-                {/* Default Rating */}
                 <div className="rating">
-                  <span className="stars">
-                    ★★★★☆
-                  </span>
+                  <span className="stars">★★★★☆</span>
                   <span className="rating-number">
                     {defaultRating}
                   </span>
@@ -70,7 +75,6 @@ export default function Categories() {
     <div className="categories-page">
       <h1 className="page-title">Shop by Category</h1>
 
-      {/* Category Navigation */}
       <div className="category-selector">
         <a href="#womens">Womens</a>
         <a href="#girls">Girls</a>
