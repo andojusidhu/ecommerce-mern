@@ -13,12 +13,12 @@ export default function Orders() {
       try {
         let data;
         if (token) {
-          const res = await fetch("http://localhost:5000/api/orders/my-orders", {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/my-orders`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           data = await res.json();
         } else {
-          const res = await fetch("http://localhost:5000/api/orders");
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`);
           data = await res.json();
         }
         setOrders(data);
@@ -64,7 +64,7 @@ export default function Orders() {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedOrder),

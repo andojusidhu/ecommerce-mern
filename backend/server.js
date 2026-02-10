@@ -21,13 +21,22 @@ connectDB();
 // ==============================
 app.use(express.json());
 
-// CORS configuration for both local and deployed frontend
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",        // local frontend
+  process.env.FRONTEND_URL        // deployed frontend
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",            // local frontend
-      process.env.FRONTEND_URL,           // deployed frontend
-    ],
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman, mobile apps, etc.)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -50,8 +59,8 @@ app.get("/", (req, res) => {
 // GLOBAL ERROR HANDLER
 // ==============================
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Server Error" });
+  console.error("Server Error:", err.message);
+  res.status(500).json({ message: err.message || "Server Error" });
 });
 
 // ==============================
