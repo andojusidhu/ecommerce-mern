@@ -31,6 +31,7 @@ router.post("/", upload.array("images", 5), async (req, res) => {
       return res.status(400).json({ msg: "Please upload at least one image" });
     }
 
+    // Image paths (local / cloudinary)
     const imageUrls = req.files.map((file) => file.path);
 
     const product = new Product({
@@ -63,12 +64,13 @@ router.get("/", async (req, res) => {
     const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
   } catch (err) {
+    console.error("❌ GET PRODUCTS ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // ==============================
-// 🔥 GET SINGLE PRODUCT BY ID (IMPORTANT)
+// GET SINGLE PRODUCT BY ID
 // ==============================
 router.get("/:id", async (req, res) => {
   try {
@@ -80,6 +82,7 @@ router.get("/:id", async (req, res) => {
 
     res.json(product);
   } catch (err) {
+    console.error("❌ GET PRODUCT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -95,8 +98,13 @@ router.put("/:id", async (req, res) => {
       { new: true }
     );
 
+    if (!updatedProduct) {
+      return res.status(404).json({ msg: "Product not found" });
+    }
+
     res.json(updatedProduct);
   } catch (err) {
+    console.error("❌ UPDATE PRODUCT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -106,9 +114,15 @@ router.put("/:id", async (req, res) => {
 // ==============================
 router.delete("/:id", async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ msg: "Product not found" });
+    }
+
     res.json({ msg: "Product deleted successfully" });
   } catch (err) {
+    console.error("❌ DELETE PRODUCT ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
