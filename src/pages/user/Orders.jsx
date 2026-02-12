@@ -6,8 +6,7 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [editingOrderId, setEditingOrderId] = useState(null);
   const [editData, setEditData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(""); // new state for errors
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,10 +15,10 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return navigate("/login");
-
-    setLoading(true);
-    setError(null);
+    if (!token) {
+      setErrorMessage("You are not logged in. Please log in to see orders.");
+      return navigate("/login");
+    }
 
     try {
       const res = await fetch(
@@ -29,24 +28,33 @@ export default function Orders() {
         }
       );
 
-      if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
-      }
-
       const data = await res.json();
 
-      // Ensure orders is always an array
-      if (Array.isArray(data)) {
-        setOrders(data);
-      } else {
-        setOrders([]);
+      if (!res.ok) {
+        // Handle 400/500 errors
+        console.error("Server error:", data.message || data);
+        setErrorMessage(
+          data.message || "Failed to load orders. Backend may have an issue."
+        );
+        setOrders([]); // prevent crash
+        return;
       }
+
+      if (!Array.isArray(data)) {
+        // Sometimes backend returns an object instead of array
+        setOrders([]);
+        setErrorMessage("No orders found or invalid response from server.");
+        return;
+      }
+
+      setOrders(data);
+      setErrorMessage(""); // clear previous errors
     } catch (err) {
-      console.error(err);
-      setError("Failed to load orders. Backend may not be deployed yet.");
+      console.error("Fetch error:", err);
+      setErrorMessage(
+        "Unable to fetch orders. Please check your connection or try again later."
+      );
       setOrders([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -76,19 +84,21 @@ export default function Orders() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/orders/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ status: "Cancelled" }),
-        }
-      );
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "Cancelled" }),
+      });
 
       const updated = await res.json();
+
+      if (!res.ok) {
+        alert(updated.message || "Cancel failed");
+        return;
+      }
 
       setOrders((prev) =>
         prev.map((order) => (order._id === id ? updated : order))
@@ -103,19 +113,21 @@ export default function Orders() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/orders/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ delivery: editData }),
-        }
-      );
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ delivery: editData }),
+      });
 
       const updated = await res.json();
+
+      if (!res.ok) {
+        alert(updated.message || "Update failed");
+        return;
+      }
 
       setOrders((prev) =>
         prev.map((order) => (order._id === id ? updated : order))
@@ -131,14 +143,12 @@ export default function Orders() {
     <div className="orders-container">
       <h2>My Orders</h2>
 
-      {loading && <p>Loading orders...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-      {Array.isArray(orders) && orders.length === 0 && !loading && !error && (
-        <p>No orders found</p>
-      )}
+      {!errorMessage && orders.length === 0 && <p>No orders found</p>}
 
-      {Array.isArray(orders) &&
+      {!errorMessage &&
+        Array.isArray(orders) &&
         orders.map((order) => (
           <div key={order._id} className="order-card">
             <h3>Order ID: {order._id}</h3>
@@ -186,9 +196,9 @@ export default function Orders() {
               </div>
             ) : (
               <>
-                <p>{order.delivery?.house}</p>
-                <p>{order.delivery?.city}</p>
-                <p>{order.delivery?.pincode}</p>
+                <p>{order.delivery?.house || "-"}</p>
+                <p>{order.delivery?.city || "-"}</p>
+                <p>{order.delivery?.pincode || "-"}</p>
               </>
             )}
 

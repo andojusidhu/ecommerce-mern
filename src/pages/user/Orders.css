@@ -309,3 +309,175 @@
 .save-btn:hover {
   background: #27ae60;
 }
+/* ================= ORDERS PAGE BASE ================= */
+.orders-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Poppins", sans-serif;
+  background: #faf7f4;
+  min-height: 100vh;
+}
+
+/* ================= PAGE TITLE ================= */
+.orders-container h2 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  color: #3f2a28;
+  margin-bottom: 20px;
+}
+
+/* ================= ERROR MESSAGE ================= */
+.error-message {
+  color: #d63333; /* bright red */
+  font-size: 16px;
+  text-align: center;
+  margin: 20px 0;
+  font-weight: 500;
+  background: #ffe6e6;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid #d63333;
+}
+
+/* ================= ORDER CARD ================= */
+.order-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.order-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3f2a28;
+  margin-bottom: 8px;
+}
+
+.order-card p {
+  font-size: 14px;
+  color: #3f2a28;
+  margin-bottom: 6px;
+}
+
+.status {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status.Pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.Processing {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.status.Cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status.Delivered {
+  background: #d4edda;
+  color: #155724;
+}
+
+/* ================= DELIVERY DETAILS ================= */
+.edit-form input {
+  width: calc(33% - 8px);
+  margin-right: 6px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.edit-form input:last-child {
+  margin-right: 0;
+}
+
+.edit-form .save-btn {
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: #d63384;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.edit-form .save-btn:hover {
+  background: #b1276e;
+}
+
+/* ================= ORDER BUTTONS ================= */
+.order-buttons {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.order-buttons button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.edit-btn {
+  background: #ffc107;
+  color: #fff;
+}
+
+.edit-btn:hover {
+  background: #e0a800;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: #fff;
+}
+
+.cancel-btn:hover {
+  background: #b02a37;
+}
+
+.delete-btn {
+  background: #6c757d;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background: #495057;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+  .edit-form input {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .edit-form input:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .orders-container {
+    padding: 16px;
+  }
+}
