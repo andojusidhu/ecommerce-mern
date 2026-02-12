@@ -1,318 +1,7 @@
-/* Container */
+/* ================= ORDERS CONTAINER ================= */
 .orders-container {
-  max-width: 1100px;
+  max-width: 950px;
   margin: 40px auto;
-  padding: 20px;
-  font-family: "Poppins", sans-serif;
-}
-
-/* Page Heading */
-.orders-container h2 {
-  text-align: center;
-  color: #d63384;
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 30px;
-}
-
-/* Order Card */
-.order-card {
-  display: flex;
-  flex-direction: column;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 25px;
-  background-color: #fff0f6;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease;
-}
-
-.order-card:hover {
-  transform: translateY(-2px);
-}
-
-/* Header Section: image + details */
-.order-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-/* Product Image */
-.order-image {
-  width: 220px;
-  height: 220px;
-  border-radius: 12px;
-  object-fit: cover; /* full coverage without distortion */
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* Details Section */
-.order-details, .order-edit-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Product Details */
-.order-details h3 {
-  font-size: 18px;
-  color: #d63384;
-  margin-bottom: 8px;
-}
-
-.order-details p {
-  font-size: 14px;
-  color: #333;
-  margin: 4px 0;
-}
-
-/* Delivery Details Section */
-.delivery-details {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-/* Edit Form */
-.order-edit-form .form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 12px;
-}
-
-.order-edit-form label {
-  font-size: 14px;
-  color: #d63384;
-  margin-bottom: 4px;
-}
-
-.order-edit-form input {
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #ff69b4;
-  font-size: 14px;
-  outline: none;
-  background-color: #fff0f6;
-  transition: all 0.2s ease;
-}
-
-.order-edit-form input:focus {
-  border-color: #ff1493;
-  box-shadow: 0 0 5px rgba(255,20,147,0.3);
-}
-
-/* Buttons */
-.edit-btn, .save-btn {
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  transition: background 0.2s ease;
-}
-
-.edit-btn {
-  background-color: #0073e6;
-  color: white;
-  align-self: flex-start;
-}
-
-.edit-btn:hover {
-  background-color: #005bb5;
-}
-
-.save-btn {
-  background-color: #ff1493;
-  color: white;
-  align-self: flex-start;
-}
-
-.save-btn:hover {
-  background-color: #e60084;
-}
-
-/* Order Status */
-.order-status {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  margin-top: 12px;
-}
-
-.order-status span {
-  font-weight: 600;
-  color: #d63384;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .order-header {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .order-image {
-    width: 180px;
-    height: 180px;
-  }
-
-  .order-details h3 {
-    font-size: 16px;
-  }
-
-  .order-details p, .order-edit-form input {
-    font-size: 13px;
-  }
-
-  .edit-btn, .save-btn {
-    font-size: 14px;
-    padding: 7px 12px;
-  }
-}
-
-@media (max-width: 500px) {
-  .order-image {
-    width: 150px;
-    height: 150px;
-  }
-
-  .order-details h3 {
-    font-size: 15px;
-  }
-
-  .order-details p, .order-edit-form input {
-    font-size: 12px;
-  }
-
-  .edit-btn, .save-btn {
-    font-size: 13px;
-    padding: 6px 10px;
-  }
-}
-.orders-container {
-  padding: 30px;
-  max-width: 900px;
-  margin: auto;
-}
-
-.orders-container h2 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.order-card {
-  border: 1px solid #ddd;
-  padding: 20px;
-  margin-bottom: 25px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.order-card h3 {
-  font-size: 14px;
-  color: #555;
-}
-
-.status {
-  font-weight: bold;
-}
-
-.status.Pending {
-  color: orange;
-}
-
-.status.Shipped {
-  color: blue;
-}
-
-.status.Delivered {
-  color: green;
-}
-
-.status.Cancelled {
-  color: red;
-}
-
-.order-buttons {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.order-buttons button {
-  padding: 6px 12px;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 13px;
-  transition: 0.3s;
-}
-
-.edit-btn {
-  background: #3498db;
-  color: white;
-}
-
-.edit-btn:hover {
-  background: #2980b9;
-}
-
-.cancel-btn {
-  background: #f39c12;
-  color: white;
-}
-
-.cancel-btn:hover {
-  background: #e67e22;
-}
-
-.delete-btn {
-  background: #e74c3c;
-  color: white;
-}
-
-.delete-btn:hover {
-  background: #c0392b;
-}
-
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.edit-form input {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.save-btn {
-  background: #2ecc71;
-  color: white;
-  border: none;
-  padding: 6px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.save-btn:hover {
-  background: #27ae60;
-}
-/* ================= ORDERS PAGE BASE ================= */
-.orders-container {
-  max-width: 900px;
-  margin: 0 auto;
   padding: 20px;
   font-family: "Poppins", sans-serif;
   background: #faf7f4;
@@ -324,88 +13,92 @@
   text-align: center;
   font-size: 28px;
   font-weight: 600;
-  color: #3f2a28;
-  margin-bottom: 20px;
+  color: #d63384;
+  margin-bottom: 30px;
 }
 
 /* ================= ERROR MESSAGE ================= */
-.error-message {
-  color: #d63333; /* bright red */
-  font-size: 16px;
-  text-align: center;
-  margin: 20px 0;
+.error-msg {
+  color: red;
   font-weight: 500;
-  background: #ffe6e6;
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: 1px solid #d63333;
+  margin: 16px 0;
+  text-align: center;
 }
 
 /* ================= ORDER CARD ================= */
 .order-card {
   background: #fff;
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
+  padding: 20px;
+  margin-bottom: 25px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .order-card h3 {
   font-size: 16px;
   font-weight: 600;
   color: #3f2a28;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .order-card p {
   font-size: 14px;
   color: #3f2a28;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
+/* ================= STATUS ================= */
 .status {
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 6px;
   font-weight: 600;
   text-transform: uppercase;
+  font-size: 12px;
+  display: inline-block;
 }
 
-.status.Pending {
-  background: #fff3cd;
-  color: #856404;
+.status.Pending { background: #fff3cd; color: #856404; }
+.status.Processing { background: #cce5ff; color: #004085; }
+.status.Cancelled { background: #f8d7da; color: #721c24; }
+.status.Delivered { background: #d4edda; color: #155724; }
+
+/* ================= DELIVERY & PRODUCT DETAILS ================= */
+.order-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 10px 0 6px;
+  color: #d63384;
+  text-align: left; /* Ensure heading aligns left */
 }
 
-.status.Processing {
-  background: #cce5ff;
-  color: #004085;
+.delivery-details,
+.items-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.status.Cancelled {
-  background: #f8d7da;
-  color: #721c24;
+/* Input edits */
+.edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.status.Delivered {
-  background: #d4edda;
-  color: #155724;
-}
-
-/* ================= DELIVERY DETAILS ================= */
 .edit-form input {
-  width: calc(33% - 8px);
-  margin-right: 6px;
-  padding: 6px 10px;
+  flex: 1 1 calc(33% - 10px);
+  padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
-}
-
-.edit-form input:last-child {
-  margin-right: 0;
+  font-size: 14px;
 }
 
 .edit-form .save-btn {
   margin-top: 10px;
-  padding: 8px 14px;
+  padding: 10px 16px;
   background: #d63384;
   color: #fff;
   border: none;
@@ -423,56 +116,46 @@
 .order-buttons {
   margin-top: 12px;
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start; /* Left aligned */
 }
 
 .order-buttons button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
+  flex: 0 0 110px; /* Fixed width for uniformity */
+  padding: 8px 12px;
   font-size: 14px;
   font-weight: 500;
+  border-radius: 6px;
+  border: none;
   cursor: pointer;
+  text-align: center;
   transition: 0.2s ease;
 }
 
-.edit-btn {
-  background: #ffc107;
-  color: #fff;
-}
+.edit-btn { background: #ffc107; color: #fff; }
+.edit-btn:hover { background: #e0a800; }
 
-.edit-btn:hover {
-  background: #e0a800;
-}
+.cancel-btn { background: #dc3545; color: #fff; }
+.cancel-btn:hover { background: #b02a37; }
 
-.cancel-btn {
-  background: #dc3545;
-  color: #fff;
-}
-
-.cancel-btn:hover {
-  background: #b02a37;
-}
-
-.delete-btn {
-  background: #6c757d;
-  color: #fff;
-}
-
-.delete-btn:hover {
-  background: #495057;
-}
+.delete-btn { background: #6c757d; color: #fff; }
+.delete-btn:hover { background: #495057; }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 900px) {
   .edit-form input {
-    width: 100%;
-    margin-bottom: 8px;
+    flex: 1 1 48%;
+  }
+}
+
+@media (max-width: 768px) {
+  .edit-form input {
+    flex: 1 1 100%;
   }
 
-  .edit-form input:last-child {
-    margin-bottom: 0;
+  .order-buttons button {
+    flex: 1 1 100%;
   }
 }
 
@@ -480,43 +163,16 @@
   .orders-container {
     padding: 16px;
   }
-}
-.error-msg {
-  color: red;
-  font-weight: 500;
-  margin: 16px 0;
-  text-align: center;
-}
 
-/* ================= ORDER BUTTONS / BUY NOW FIX ================= */
-.order-buttons {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-
-  /* New addition to make button always visible */
-  justify-content: flex-start; /* aligns buttons to left */
-}
-
-.order-buttons button.buy-now-btn {
-  margin-top: 0; /* reset any forced spacing */
-  flex: 1 1 200px; /* button grows but maintains minimum width */
-  max-width: 300px;
-  align-self: auto;
-}
-
-/* Responsive fixes for smaller screens */
-@media (max-width: 768px) {
-  .order-buttons button.buy-now-btn {
-    flex: 1 1 100%; /* full width on tablet/mobile */
+  .order-card {
+    padding: 16px;
   }
-}
 
-@media (max-width: 520px) {
-  .order-buttons button.buy-now-btn {
-    width: 100%;
-    font-size: 14px;
-    padding: 8px 12px;
-  }
+  .order-card h3 { font-size: 15px; }
+  .order-card p { font-size: 13px; }
+  .order-card h4 { font-size: 14px; }
+
+  .edit-form input { font-size: 13px; padding: 6px 8px; }
+
+  .order-buttons button { font-size: 13px; padding: 6px 8px; }
 }

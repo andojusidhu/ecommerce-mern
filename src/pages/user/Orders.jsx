@@ -23,7 +23,7 @@ export default function Orders() {
 
   const fetchOrders = async (token) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/my-orders`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
