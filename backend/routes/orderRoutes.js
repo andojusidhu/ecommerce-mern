@@ -1,76 +1,127 @@
 import express from "express";
 import Order from "../models/Order.js";
-import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ==============================
-// CREATE ORDER (guest or logged-in)
-// ==============================
+/* =====================================================
+   CREATE ORDER (Guest Checkout - No Login Required)
+===================================================== */
 router.post("/", async (req, res) => {
   try {
     const orderData = req.body;
 
-    // If token exists, attach user
-    if (req.headers.authorization) {
-      try {
-        const userMiddleware = authMiddleware;
-        await new Promise((resolve, reject) =>
-          userMiddleware(req, res, (err) => (err ? reject(err) : resolve()))
-        );
-        orderData.user = req.user._id;
-      } catch {
-        // token invalid/expired: still allow guest order
-      }
+    // Basic validation
+    if (
+      !orderData.delivery?.name ||
+      !orderData.delivery?.phone ||
+      !orderData.delivery?.house ||
+      !orderData.items?.length
+    ) {
+      return res.status(400).json({
+        message: "Missing required order fields",
+      });
     }
 
-    const order = new Order(orderData);
-    await order.save();
+    // Format items properly
+    const formattedItems = orderData.items.map((item) => ({
+      productId: item.productId,
+      name: item.name || "Unknown Product",
+      image: item.image || item.images?.[0] || "",
+      selectedSize: item.selectedSize || "",
+      selectedColor: item.selectedColor || "",
+      quantity: Number(item.quantity) || 1,
+      price: Number(item.price) || 0,
+    }));
 
-    res.status(201).json(order);
+    const newOrder = new Order({
+      user: orderData.user || null, // optional
+      delivery: orderData.delivery,
+      payment: orderData.payment || "COD",
+      items: formattedItems,
+      totalAmount: Number(orderData.totalAmount),
+    });
+
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json(savedOrder);
   } catch (err) {
-    console.error("Create order error:", err);
-    res.status(500).json({ message: err.message });
+    console.error("Create order error:", err.message);
+    res.status(500).json({ message: "Failed to create order" });
   }
 });
 
-// ==============================
-// GET USER ORDERS (logged-in only)
-// ==============================
-router.get("/my-orders", authMiddleware, async (req, res) => {
+/* =====================================================
+   GET ALL ORDERS (For Orders Page)
+===================================================== */
+router.get("/", async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort({
-      createdAt: -1,
-    });
-    res.json(orders);
+    const orders = await Order.find().sort({ createdAt: -1 });
+    res.status(200).json(orders);
   } catch (err) {
-    console.error("Fetch user orders error:", err);
+    console.error("Fetch orders error:", err.message);
     res.status(500).json({ message: "Failed to fetch orders" });
   }
 });
 
-// ==============================
-// UPDATE ORDER DELIVERY DETAILS
-// ==============================
+/* =====================================================
+   GET SINGLE ORDER BY ID
+===================================================== */
+router.get("/:id", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("Fetch single order error:", err.message);
+    res.status(500).json({ message: "Failed to fetch order" });
+  }
+});
+
+/* =====================================================
+   UPDATE ORDER (Guest Can Update by ID)
+===================================================== */
 router.put("/:id", async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const updatedData = req.body;
+    const order = await Order.findById(req.params.id);
 
-    const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
 
-    // Update delivery & items if provided
-    if (updatedData.delivery) order.delivery = updatedData.delivery;
-    if (updatedData.items) order.items = updatedData.items;
-    if (updatedData.totalAmount !== undefined)
-      order.totalAmount = updatedData.totalAmount;
+    if (req.body.delivery) {
+      order.delivery = { ...order.delivery, ...req.body.delivery };
+    }
 
-    await order.save();
-    res.json(order);
+    if (req.body.items) {
+      order.items = req.body.items.map((item) => ({
+        productId: item.productId,
+        name: item.name || "Unknown Product",
+        image: item.image || item.images?.[0] || "",
+        selectedSize: item.selectedSize || "",
+        selectedColor: item.selectedColor || "",
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || 0,
+      }));
+    }
+
+    if (req.body.totalAmount !== undefined) {
+      order.totalAmount = Number(req.body.totalAmount);
+    }
+
+    if (req.body.payment) {
+      order.payment = req.body.payment;
+    }
+
+    const updatedOrder = await order.save();
+
+    res.status(200).json(updatedOrder);
   } catch (err) {
-    console.error("Update order error:", err);
-    res.status(500).json({ message: err.message });
+    console.error("Update order error:", err.message);
+    res.status(500).json({ message: "Failed to update order" });
   }
 });
 

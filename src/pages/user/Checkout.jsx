@@ -19,7 +19,7 @@ export default function Checkout({ setOrders }) {
     payment: "COD",
   });
 
-  // Load cart from localStorage or "Buy Now"
+  // Load cart from localStorage or "Buy Now" option
   useEffect(() => {
     const fromState = location.state?.cart;
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -59,8 +59,7 @@ export default function Checkout({ setOrders }) {
       return;
     }
 
-    const token = localStorage.getItem("token");
-
+    // Prepare order payload for MongoDB
     const orderPayload = {
       delivery: {
         name: formData.name,
@@ -90,16 +89,23 @@ export default function Checkout({ setOrders }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }), // include token only if logged in
+          // no token needed for guest checkout
         },
         body: JSON.stringify(orderPayload),
       });
 
-      const data = await res.json();
+      // Handle server response safely
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { message: text || "Order placed" };
+      }
 
       if (!res.ok) throw new Error(data.message || "Order failed");
 
-      // Update parent state
+      // Update orders state in parent (if applicable)
       if (typeof setOrders === "function") setOrders((prev) => [...prev, data]);
 
       // Clear cart
@@ -121,22 +127,70 @@ export default function Checkout({ setOrders }) {
       {/* Customer Details */}
       <section className="checkout-section">
         <h3>Customer Details</h3>
-        <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
-        <input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
+        <input
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          value={formData.name}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone Number"
+          value={formData.phone}
+          onChange={handleChange}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+        />
       </section>
 
-      {/* Address */}
+      {/* Delivery Address */}
       <section className="checkout-section">
         <h3>Delivery Address</h3>
-        <input type="text" name="house" placeholder="House/Flat No." value={formData.house} onChange={handleChange} />
-        <input type="text" name="street" placeholder="Street/Area" value={formData.street} onChange={handleChange} />
-        <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} />
-        <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} />
-        <input type="text" name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleChange} />
+        <input
+          type="text"
+          name="house"
+          placeholder="House/Flat No."
+          value={formData.house}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="street"
+          placeholder="Street/Area"
+          value={formData.street}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="city"
+          placeholder="City"
+          value={formData.city}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="state"
+          placeholder="State"
+          value={formData.state}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="pincode"
+          placeholder="Pincode"
+          value={formData.pincode}
+          onChange={handleChange}
+        />
       </section>
 
-      {/* Payment */}
+      {/* Payment Method */}
       <section className="checkout-section">
         <h3>Payment Method</h3>
         <select name="payment" value={formData.payment} onChange={handleChange}>
@@ -159,7 +213,11 @@ export default function Checkout({ setOrders }) {
             return (
               <div key={index} className="summary-item">
                 <div className="summary-left">
-                  <img src={item.images?.[0] || "/placeholder.png"} alt={item.name} className="summary-img" />
+                  <img
+                    src={item.images?.[0] || "/placeholder.png"}
+                    alt={item.name}
+                    className="summary-img"
+                  />
                   <div className="summary-meta">
                     <div className="summary-name">{item.name}</div>
                     <div className="summary-opts">
@@ -178,7 +236,9 @@ export default function Checkout({ setOrders }) {
         <h4>Total: ₹{total}</h4>
       </section>
 
-      <button className="place-order-btn" onClick={placeOrder}>Place Order</button>
+      <button className="place-order-btn" onClick={placeOrder}>
+        Place Order
+      </button>
     </div>
   );
 }
