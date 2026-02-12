@@ -481,3 +481,42 @@
     padding: 16px;
   }
 }
+.error-msg {
+  color: red;
+  font-weight: 500;
+  margin: 16px 0;
+  text-align: center;
+}
+
+/* ================= ORDER BUTTONS / BUY NOW FIX ================= */
+.order-buttons {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  /* New addition to make button always visible */
+  justify-content: flex-start; /* aligns buttons to left */
+}
+
+.order-buttons button.buy-now-btn {
+  margin-top: 0; /* reset any forced spacing */
+  flex: 1 1 200px; /* button grows but maintains minimum width */
+  max-width: 300px;
+  align-self: auto;
+}
+
+/* Responsive fixes for smaller screens */
+@media (max-width: 768px) {
+  .order-buttons button.buy-now-btn {
+    flex: 1 1 100%; /* full width on tablet/mobile */
+  }
+}
+
+@media (max-width: 520px) {
+  .order-buttons button.buy-now-btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}

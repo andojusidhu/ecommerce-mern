@@ -6,80 +6,73 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [editingOrderId, setEditingOrderId] = useState(null);
   const [editData, setEditData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(""); // new state for errors
+  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setErrorMessage("You are not logged in. Please log in to see orders.");
-      return navigate("/login");
+      // Redirect unauthenticated users to login/signup
+      navigate("/login", { replace: true });
+      return;
     }
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/orders/my-orders`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    fetchOrders(token);
+  }, []);
 
-      const data = await res.json();
+  const fetchOrders = async (token) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/my-orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        // Handle 400/500 errors
-        console.error("Server error:", data.message || data);
-        setErrorMessage(
-          data.message || "Failed to load orders. Backend may have an issue."
-        );
-        setOrders([]); // prevent crash
+        setErrorMsg(data.message || "Failed to load orders. Server returned an error.");
+        setOrders([]);
         return;
       }
 
       if (!Array.isArray(data)) {
-        // Sometimes backend returns an object instead of array
+        setErrorMsg("Unexpected data format received from server.");
         setOrders([]);
-        setErrorMessage("No orders found or invalid response from server.");
         return;
       }
 
       setOrders(data);
-      setErrorMessage(""); // clear previous errors
+      setErrorMsg("");
     } catch (err) {
-      console.error("Fetch error:", err);
-      setErrorMessage(
-        "Unable to fetch orders. Please check your connection or try again later."
-      );
+      console.error("Fetch failed:", err);
+      setErrorMsg("Failed to fetch orders. Check your network or try again later.");
       setOrders([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 🗑 Delete Order
+  // Delete Order
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
-
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this order?"
-    );
+    const confirmDelete = window.confirm("Are you sure you want to delete this order?");
     if (!confirmDelete) return;
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (!res.ok) throw new Error("Delete failed");
+
       setOrders((prev) => prev.filter((order) => order._id !== id));
     } catch (err) {
-      alert("Delete failed");
+      alert(err.message || "Delete failed");
     }
   };
 
-  // 🚫 Cancel Order
+  // Cancel Order
   const handleCancel = async (id) => {
     const token = localStorage.getItem("token");
 
@@ -93,22 +86,18 @@ export default function Orders() {
         body: JSON.stringify({ status: "Cancelled" }),
       });
 
+      if (!res.ok) throw new Error("Cancel failed");
+
       const updated = await res.json();
-
-      if (!res.ok) {
-        alert(updated.message || "Cancel failed");
-        return;
-      }
-
       setOrders((prev) =>
         prev.map((order) => (order._id === id ? updated : order))
       );
     } catch (err) {
-      alert("Cancel failed");
+      alert(err.message || "Cancel failed");
     }
   };
 
-  // ✏ Update Delivery
+  // Update Delivery
   const handleUpdate = async (id) => {
     const token = localStorage.getItem("token");
 
@@ -122,20 +111,15 @@ export default function Orders() {
         body: JSON.stringify({ delivery: editData }),
       });
 
+      if (!res.ok) throw new Error("Update failed");
+
       const updated = await res.json();
-
-      if (!res.ok) {
-        alert(updated.message || "Update failed");
-        return;
-      }
-
       setOrders((prev) =>
         prev.map((order) => (order._id === id ? updated : order))
       );
-
       setEditingOrderId(null);
     } catch (err) {
-      alert("Update failed");
+      alert(err.message || "Update failed");
     }
   };
 
@@ -143,12 +127,13 @@ export default function Orders() {
     <div className="orders-container">
       <h2>My Orders</h2>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-      {!errorMessage && orders.length === 0 && <p>No orders found</p>}
-
-      {!errorMessage &&
-        Array.isArray(orders) &&
+      {loading ? (
+        <p>Loading orders...</p>
+      ) : errorMsg ? (
+        <p className="error-msg">{errorMsg}</p>
+      ) : orders.length === 0 ? (
+        <p>No orders found.</p>
+      ) : (
         orders.map((order) => (
           <div key={order._id} className="order-card">
             <h3>Order ID: {order._id}</h3>
@@ -186,7 +171,6 @@ export default function Orders() {
                     setEditData({ ...editData, pincode: e.target.value })
                   }
                 />
-
                 <button
                   className="save-btn"
                   onClick={() => handleUpdate(order._id)}
@@ -196,11 +180,29 @@ export default function Orders() {
               </div>
             ) : (
               <>
-                <p>{order.delivery?.house || "-"}</p>
-                <p>{order.delivery?.city || "-"}</p>
-                <p>{order.delivery?.pincode || "-"}</p>
+                <p>{order.delivery?.house}</p>
+                <p>{order.delivery?.city}</p>
+                <p>{order.delivery?.pincode}</p>
               </>
             )}
+
+            <h4>Items</h4>
+            {order.items?.map((item) => (
+              <div key={item.productId} className="cart-item">
+                <img
+                  src={item.image || "https://via.placeholder.com/60"}
+                  alt={item.name}
+                />
+                <div className="cart-info">
+                  <p>{item.name}</p>
+                  <p>
+                    ₹{item.price} × {item.quantity} = ₹{item.price * item.quantity}
+                  </p>
+                  {item.selectedSize && <p>Size: {item.selectedSize}</p>}
+                  {item.selectedColor && <p>Color: {item.selectedColor}</p>}
+                </div>
+              </div>
+            ))}
 
             <div className="order-buttons">
               {order.status === "Pending" && (
@@ -232,7 +234,8 @@ export default function Orders() {
               </button>
             </div>
           </div>
-        ))}
+        ))
+      )}
     </div>
   );
 }

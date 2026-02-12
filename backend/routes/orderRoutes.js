@@ -33,7 +33,7 @@ router.post("/", authMiddleware, async (req, res) => {
     }));
 
     const newOrder = new Order({
-      user: req.user._id, // 🔐 Logged-in user
+      user: req.user._id,
       delivery: orderData.delivery,
       payment: orderData.payment || "COD",
       items: formattedItems,
@@ -44,7 +44,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
     res.status(201).json(savedOrder);
   } catch (err) {
-    console.error("Create order error:", err.message);
+    console.error("Create order error:", err);
     res.status(500).json({ message: "Failed to create order" });
   }
 });
@@ -52,17 +52,24 @@ router.post("/", authMiddleware, async (req, res) => {
 /* =====================================================
    GET USER ORDERS ONLY
 ===================================================== */
+// GET USER ORDERS ONLY
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id })
-      .sort({ createdAt: -1 });
+    if (!req.user?._id) {
+      return res.status(401).json({ message: "Unauthorized: Missing user" });
+    }
 
-    res.status(200).json(orders);
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+
+    // Return empty array if no orders
+    return res.status(200).json(orders || []);
   } catch (err) {
-    console.error("Fetch orders error:", err.message);
-    res.status(500).json({ message: "Failed to fetch orders" });
+    console.error("Fetch orders error:", err); // Detailed log for server
+    // Send error message to frontend safely
+    return res.status(500).json({ message: "Failed to fetch orders", error: err.message });
   }
 });
+
 
 /* =====================================================
    GET SINGLE ORDER (Owner Only)
@@ -71,17 +78,13 @@ router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    if (order.user.toString() !== req.user._id.toString()) {
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (order.user.toString() !== req.user._id.toString())
       return res.status(403).json({ message: "Not authorized" });
-    }
 
     res.status(200).json(order);
   } catch (err) {
-    console.error("Fetch single order error:", err.message);
+    console.error("Fetch single order error:", err);
     res.status(500).json({ message: "Failed to fetch order" });
   }
 });
@@ -92,19 +95,11 @@ router.get("/:id", authMiddleware, async (req, res) => {
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    if (order.user.toString() !== req.user._id.toString()) {
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (order.user.toString() !== req.user._id.toString())
       return res.status(403).json({ message: "Not authorized" });
-    }
 
-    if (req.body.delivery) {
-      order.delivery = { ...order.delivery, ...req.body.delivery };
-    }
-
+    if (req.body.delivery) order.delivery = { ...order.delivery, ...req.body.delivery };
     if (req.body.items) {
       order.items = req.body.items.map((item) => ({
         productId: item.productId,
@@ -116,20 +111,13 @@ router.put("/:id", authMiddleware, async (req, res) => {
         price: Number(item.price) || 0,
       }));
     }
-
-    if (req.body.totalAmount !== undefined) {
-      order.totalAmount = Number(req.body.totalAmount);
-    }
-
-    if (req.body.payment) {
-      order.payment = req.body.payment;
-    }
+    if (req.body.totalAmount !== undefined) order.totalAmount = Number(req.body.totalAmount);
+    if (req.body.payment) order.payment = req.body.payment;
 
     const updatedOrder = await order.save();
-
     res.status(200).json(updatedOrder);
   } catch (err) {
-    console.error("Update order error:", err.message);
+    console.error("Update order error:", err);
     res.status(500).json({ message: "Failed to update order" });
   }
 });
@@ -140,20 +128,14 @@ router.put("/:id", authMiddleware, async (req, res) => {
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    if (order.user.toString() !== req.user._id.toString()) {
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (order.user.toString() !== req.user._id.toString())
       return res.status(403).json({ message: "Not authorized" });
-    }
 
     await order.deleteOne();
-
     res.status(200).json({ message: "Order removed successfully" });
   } catch (err) {
-    console.error("Delete order error:", err.message);
+    console.error("Delete order error:", err);
     res.status(500).json({ message: "Failed to delete order" });
   }
 });
