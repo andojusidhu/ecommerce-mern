@@ -2,9 +2,9 @@
 .home-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 30px; /* padding around home page */
+  padding: 20px 30px;
   font-family: "Poppins", sans-serif;
-  background: #fff0f6; /* light pink background for the page */
+  background: #fff0f6;
 }
 
 /* ================= TOP BAR ================= */
@@ -14,7 +14,7 @@
   align-items: center;
   margin-bottom: 25px;
   padding: 10px 20px;
-  background: #fff; /* white background */
+  background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
@@ -22,7 +22,7 @@
 .logo {
   font-size: 26px;
   font-weight: 700;
-  color: #d63384; /* pink text */
+  color: #d63384;
   cursor: pointer;
 }
 
@@ -83,10 +83,8 @@
   transition: all 0.2s ease;
 }
 
-/* Hover effect only for search bar */
 .search-bar input:hover {
-  background-color: #ffe6f0; /* light pink hover */
-  border-color: #d63384;
+  background-color: #ffe6f0;
 }
 
 /* ================= FESTIVAL SECTION ================= */
@@ -123,14 +121,13 @@
   gap: 16px;
 }
 
-/* Product Card */
 .category-product-card {
   background: #fff;
   padding: 12px;
   border-radius: 12px;
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease; /* only products hover */
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -142,7 +139,6 @@
   box-shadow: 0 14px 32px rgba(0,0,0,0.14);
 }
 
-/* Product Image */
 .category-product-card img {
   width: 100%;
   height: 180px;
@@ -151,7 +147,6 @@
   background: #f2ede8;
 }
 
-/* Product Name & Price */
 .category-product-card h4 {
   font-size: 15px;
   font-weight: 500;
@@ -197,7 +192,66 @@
 }
 
 .category-product-card button:hover {
-  background-color: #b1276e; /* slightly darker pink on hover */
+  background-color: #b1276e;
+}
+
+/* ================= SLIDER SECTIONS ================= */
+.section-title {
+  margin: 30px 0 15px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #d63384;
+}
+
+.slider-container {
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 30px;
+  border-radius: 12px;
+}
+
+.slider-track {
+  display: flex;
+  gap: 16px;
+  animation: scrollSlider 25s linear infinite;
+}
+
+.slider-card {
+  min-width: 180px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.slider-card:hover {
+  transform: translateY(-4px);
+}
+
+.slider-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.slider-card p {
+  font-size: 14px;
+  margin: 6px 0 4px;
+}
+
+.slider-card span {
+  font-weight: 600;
+  color: #d63384;
+  font-size: 14px;
+}
+
+@keyframes scrollSlider {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* ================= CART PANEL ================= */
@@ -213,7 +267,6 @@
   z-index: 999;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease;
 }
 
 .cart-header {
@@ -259,17 +312,6 @@
 
 .cart-info {
   flex: 1;
-}
-
-.cart-info h4 {
-  font-size: 14px;
-  margin-bottom: 4px;
-  color: #333;
-}
-
-.cart-info p {
-  font-size: 14px;
-  color: #d63384;
 }
 
 .qty-controls {
@@ -328,7 +370,7 @@
 
 @media (max-width: 520px) {
   .category-products {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .search-bar input {
@@ -337,5 +379,13 @@
 
   .cart-panel {
     width: 100%;
+  }
+
+  .slider-card {
+    min-width: 140px;
+  }
+
+  .slider-card img {
+    height: 140px;
   }
 }

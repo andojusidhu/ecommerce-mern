@@ -5,6 +5,20 @@ import { useEffect, useState } from "react";
 export default function Categories() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [expandedCategory, setExpandedCategory] = useState(null);
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(
+    window.innerWidth <= 1024
+  );
+
+  // Detect screen resize properly
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileOrTablet(window.innerWidth <= 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Load products from backend (MongoDB)
   useEffect(() => {
@@ -21,8 +35,13 @@ export default function Categories() {
     fetchProducts();
   }, []);
 
-  // Default rating
   const defaultRating = 4.5;
+
+  const handleShowMore = (categoryKey) => {
+    setExpandedCategory((prev) =>
+      prev === categoryKey ? null : categoryKey
+    );
+  };
 
   // Render products category-wise
   const renderCategory = (title, categoryKey) => {
@@ -32,16 +51,35 @@ export default function Categories() {
 
     if (categoryProducts.length === 0) return null;
 
+    const isExpanded = expandedCategory === categoryKey;
+
+    // Laptop/Desktop = 8 products (2x4)
+    // Tablet/Mobile = 4 products (2x2)
+    const initialCount = isMobileOrTablet ? 4 : 8;
+
+    const visibleProducts = isExpanded
+      ? categoryProducts
+      : categoryProducts.slice(0, initialCount);
+
     return (
       <section id={categoryKey.toLowerCase()} className="category-block">
         <div className="category-header">
           <h2>{title}</h2>
+
+          {categoryProducts.length > initialCount && (
+            <span
+              className="see-more"
+              onClick={() => handleShowMore(categoryKey)}
+            >
+              {isExpanded ? "Show Less" : "Show More"}
+            </span>
+          )}
         </div>
 
         <div className="category-products">
-          {categoryProducts.slice(0, 4).map((item) => (
+          {visibleProducts.map((item) => (
             <div
-              key={item._id}   // changed from id to _id
+              key={item._id}
               className="category-product-card"
               onClick={() =>
                 navigate(`/category-product/${item._id}`)

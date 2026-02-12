@@ -1,16 +1,16 @@
 import express from "express";
 import Order from "../models/Order.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 /* =====================================================
-   CREATE ORDER (Guest Checkout - No Login Required)
+   CREATE ORDER (Login Required)
 ===================================================== */
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const orderData = req.body;
 
-    // Basic validation
     if (
       !orderData.delivery?.name ||
       !orderData.delivery?.phone ||
@@ -22,7 +22,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Format items properly
     const formattedItems = orderData.items.map((item) => ({
       productId: item.productId,
       name: item.name || "Unknown Product",
@@ -34,7 +33,7 @@ router.post("/", async (req, res) => {
     }));
 
     const newOrder = new Order({
-      user: orderData.user || null, // optional
+      user: req.user._id, // 🔐 Logged-in user
       delivery: orderData.delivery,
       payment: orderData.payment || "COD",
       items: formattedItems,
@@ -51,11 +50,13 @@ router.post("/", async (req, res) => {
 });
 
 /* =====================================================
-   GET ALL ORDERS (For Orders Page)
+   GET USER ORDERS ONLY
 ===================================================== */
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 });
+    const orders = await Order.find({ user: req.user._id })
+      .sort({ createdAt: -1 });
+
     res.status(200).json(orders);
   } catch (err) {
     console.error("Fetch orders error:", err.message);
@@ -64,14 +65,18 @@ router.get("/", async (req, res) => {
 });
 
 /* =====================================================
-   GET SINGLE ORDER BY ID
+   GET SINGLE ORDER (Owner Only)
 ===================================================== */
-router.get("/:id", async (req, res) => {
+router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
     res.status(200).json(order);
@@ -82,14 +87,18 @@ router.get("/:id", async (req, res) => {
 });
 
 /* =====================================================
-   UPDATE ORDER (Guest Can Update by ID)
+   UPDATE ORDER (Owner Only)
 ===================================================== */
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
     if (req.body.delivery) {
@@ -122,6 +131,30 @@ router.put("/:id", async (req, res) => {
   } catch (err) {
     console.error("Update order error:", err.message);
     res.status(500).json({ message: "Failed to update order" });
+  }
+});
+
+/* =====================================================
+   DELETE ORDER (Owner Only)
+===================================================== */
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    await order.deleteOne();
+
+    res.status(200).json({ message: "Order removed successfully" });
+  } catch (err) {
+    console.error("Delete order error:", err.message);
+    res.status(500).json({ message: "Failed to delete order" });
   }
 });
 

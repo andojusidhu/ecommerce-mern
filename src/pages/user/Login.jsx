@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./Login.css";
 
 export default function Login({ setUser }) {
@@ -7,8 +7,13 @@ export default function Login({ setUser }) {
     identifier: "",
     password: "",
   });
+
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ Get redirect path
+  const from = location.state?.from || "/";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,13 +37,12 @@ export default function Login({ setUser }) {
         return;
       }
 
-      // Save user info and token
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       if (setUser) setUser(data.user);
 
       alert(`Welcome back, ${data.user.name}!`);
-      navigate("/"); // Navigate to Home
+      navigate(from); // ✅ Redirect properly
     } catch (err) {
       console.error(err);
       setError("Server error. Try again later.");

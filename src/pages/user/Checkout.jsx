@@ -19,12 +19,20 @@ export default function Checkout({ setOrders }) {
     payment: "COD",
   });
 
-  // Load cart from localStorage or "Buy Now" option
+  // ✅ Load cart + Redirect to login if not authenticated
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login to place an order");
+      navigate("/login", { state: { from: "/checkout" } });
+      return;
+    }
+
     const fromState = location.state?.cart;
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartItems(Array.isArray(fromState) ? fromState : storedCart);
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   const getItemPrice = (item) => {
     if (!item) return 0;
@@ -49,6 +57,14 @@ export default function Checkout({ setOrders }) {
   };
 
   const placeOrder = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Session expired. Please login again.");
+      navigate("/login", { state: { from: "/checkout" } });
+      return;
+    }
+
     if (!formData.name || !formData.phone || !formData.house) {
       alert("Please fill required fields");
       return;
@@ -59,7 +75,6 @@ export default function Checkout({ setOrders }) {
       return;
     }
 
-    // Prepare order payload for MongoDB
     const orderPayload = {
       delivery: {
         name: formData.name,
@@ -75,7 +90,7 @@ export default function Checkout({ setOrders }) {
       items: cartItems.map((item) => ({
         productId: item._id,
         name: item.name,
-        image: item.images?.[0] || "", // Cloudinary image
+        image: item.images?.[0] || "",
         selectedSize: item.selectedSize || "",
         selectedColor: item.selectedColor || "",
         quantity: Number(item.quantity) || 1,
@@ -89,31 +104,24 @@ export default function Checkout({ setOrders }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // no token needed for guest checkout
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(orderPayload),
       });
 
-      // Handle server response safely
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = { message: text || "Order placed" };
-      }
-
+      const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Order failed");
 
-      // Update orders state in parent (if applicable)
-      if (typeof setOrders === "function") setOrders((prev) => [...prev, data]);
+      if (typeof setOrders === "function") {
+        setOrders((prev) => [...prev, data]);
+      }
 
-      // Clear cart
       localStorage.removeItem("cart");
       setCartItems([]);
 
       alert(`Thank you ${formData.name}! Your order has been placed successfully.`);
       navigate("/orders", { state: { justOrdered: true } });
+
     } catch (err) {
       console.error("Order error:", err);
       alert(err.message || "Failed to place order");
@@ -127,67 +135,19 @@ export default function Checkout({ setOrders }) {
       {/* Customer Details */}
       <section className="checkout-section">
         <h3>Customer Details</h3>
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-        />
+        <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
+        <input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
       </section>
 
       {/* Delivery Address */}
       <section className="checkout-section">
         <h3>Delivery Address</h3>
-        <input
-          type="text"
-          name="house"
-          placeholder="House/Flat No."
-          value={formData.house}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="street"
-          placeholder="Street/Area"
-          value={formData.street}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="city"
-          placeholder="City"
-          value={formData.city}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="state"
-          placeholder="State"
-          value={formData.state}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="pincode"
-          placeholder="Pincode"
-          value={formData.pincode}
-          onChange={handleChange}
-        />
+        <input type="text" name="house" placeholder="House/Flat No." value={formData.house} onChange={handleChange} />
+        <input type="text" name="street" placeholder="Street/Area" value={formData.street} onChange={handleChange} />
+        <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} />
+        <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} />
+        <input type="text" name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleChange} />
       </section>
 
       {/* Payment Method */}

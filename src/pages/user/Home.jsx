@@ -69,50 +69,15 @@ export default function Home() {
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const newlyArrived = filteredProducts.slice(0, 4);
-  const trending = filteredProducts.slice(4, 8);
+  // 🔥 Latest 10 Products (Sorted by createdAt)
+  const latestProducts = [...filteredProducts]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 10);
 
-  const renderSection = (title, items) => (
-    <div className="category-block">
-      <div className="category-header">
-        <h2>{title}</h2>
-      </div>
-      <div className="category-products">
-        {items.map((product) => (
-          <div
-            key={product._id}
-            className="category-product-card"
-            onClick={() =>
-              navigate(`/categoryproductdetails/${product._id}`, {
-                state: { product },
-              })
-            }
-          >
-            <img
-              src={product.images?.[0] || "/placeholder.png"}
-              alt={product.name}
-            />
-            <h4>{product.name}</h4>
-            {product.rating && (
-              <div className="rating">
-                <span className="stars">★ {product.rating}</span>
-                <span className="rating-number">({product.reviews || 0})</span>
-              </div>
-            )}
-            <p className="price">₹{product.price}</p>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                addToCart(product);
-              }}
-            >
-              Add to Cart
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  // 🔥 Trending (next 10)
+  const trendingProducts = [...filteredProducts]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(10, 20);
 
   const handleBuyNow = () => {
     if (!cart.length) return;
@@ -166,11 +131,57 @@ export default function Home() {
         <div className="festival-box">🔥 Limited Time</div>
       </div>
 
-      {/* Product Sections */}
-      {renderSection("Newly Arrived", newlyArrived)}
-      {renderSection("Trending Items", trending)}
+      {/* 🔥 New Arrivals Slider */}
+      <h2 className="section-title">New Arrivals</h2>
+      <div className="slider-container">
+        <div className="slider-track">
+          {[...latestProducts, ...latestProducts].map((product, index) => (
+            <div
+              key={index}
+              className="slider-card"
+              onClick={() =>
+                navigate(`/categoryproductdetails/${product._id}`, {
+                  state: { product },
+                })
+              }
+            >
+              <img
+                src={product.images?.[0] || "/placeholder.png"}
+                alt={product.name}
+              />
+              <p>{product.name}</p>
+              <span>₹{product.price}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* Cart Panel */}
+      {/* 🔥 Trending Slider */}
+      <h2 className="section-title">Trending Items</h2>
+      <div className="slider-container">
+        <div className="slider-track">
+          {[...trendingProducts, ...trendingProducts].map((product, index) => (
+            <div
+              key={index}
+              className="slider-card"
+              onClick={() =>
+                navigate(`/categoryproductdetails/${product._id}`, {
+                  state: { product },
+                })
+              }
+            >
+              <img
+                src={product.images?.[0] || "/placeholder.png"}
+                alt={product.name}
+              />
+              <p>{product.name}</p>
+              <span>₹{product.price}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Cart Panel (UNCHANGED) */}
       {cartOpen && (
         <div className="cart-panel">
           <div className="cart-header">

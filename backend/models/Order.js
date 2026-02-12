@@ -2,14 +2,14 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    // Optional user reference for guest checkout
+    // 🔐 User reference (Login Required)
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: false,
+      required: true, // Now login is mandatory
     },
 
-    // Delivery details
+    // 🚚 Delivery details
     delivery: {
       name: { type: String, required: true },
       phone: { type: String, required: true },
@@ -21,17 +21,20 @@ const orderSchema = new mongoose.Schema(
       pincode: { type: String, default: "" },
     },
 
-    // Payment method
+    // 💳 Payment method
     payment: {
       type: String,
       enum: ["COD", "UPI", "Card"],
       default: "COD",
     },
 
-    // Ordered items
+    // 🛒 Ordered items
     items: [
       {
-        productId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+        },
         name: { type: String, required: true },
         image: { type: String, default: "" }, // Cloudinary image URL
         selectedSize: { type: String, default: "" },
@@ -41,8 +44,18 @@ const orderSchema = new mongoose.Schema(
       },
     ],
 
-    // Total order amount
-    totalAmount: { type: Number, required: true },
+    // 💰 Total order amount
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
+
+    // 📦 Order status (Future upgrade)
+    status: {
+      type: String,
+      enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt

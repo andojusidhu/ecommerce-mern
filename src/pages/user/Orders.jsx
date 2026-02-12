@@ -1,92 +1,228 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Orders.css";
 
-export default function Orders({ orders: parentOrders }) {
+export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [editingOrderId, setEditingOrderId] = useState(null);
+  const [editData, setEditData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Load orders from backend when component mounts
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`);
-        if (!res.ok) {
-          console.error("Fetch failed:", res.status);
-          setOrders([]);
-          return;
-        }
-
-        const data = await res.json();
-        setOrders(Array.isArray(data) ? data : data.orders || []);
-      } catch (err) {
-        console.error("Fetch orders error:", err);
-        setOrders([]);
-      }
-    };
-
     fetchOrders();
   }, []);
 
-  // Update orders if Checkout passes new orders via state
-  useEffect(() => {
-    if (parentOrders && parentOrders.length) {
-      setOrders(parentOrders);
-    }
-  }, [parentOrders]);
+  const fetchOrders = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return navigate("/login");
 
-  // Cloudinary helper
-  const getCloudinaryImage = (url) => {
-    if (!url) return "/placeholder.png";
-    return url.includes("/upload/")
-      ? url.replace("/upload/", "/upload/w_220,h_220,c_fill/")
-      : url;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/orders/my-orders`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Ensure orders is always an array
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else {
+        setOrders([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load orders. Backend may not be deployed yet.");
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🗑 Delete Order
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this order?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setOrders((prev) => prev.filter((order) => order._id !== id));
+    } catch (err) {
+      alert("Delete failed");
+    }
+  };
+
+  // 🚫 Cancel Order
+  const handleCancel = async (id) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/orders/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: "Cancelled" }),
+        }
+      );
+
+      const updated = await res.json();
+
+      setOrders((prev) =>
+        prev.map((order) => (order._id === id ? updated : order))
+      );
+    } catch (err) {
+      alert("Cancel failed");
+    }
+  };
+
+  // ✏ Update Delivery
+  const handleUpdate = async (id) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/orders/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ delivery: editData }),
+        }
+      );
+
+      const updated = await res.json();
+
+      setOrders((prev) =>
+        prev.map((order) => (order._id === id ? updated : order))
+      );
+
+      setEditingOrderId(null);
+    } catch (err) {
+      alert("Update failed");
+    }
   };
 
   return (
     <div className="orders-container">
       <h2>My Orders</h2>
-      {orders.length === 0 && <p>No orders yet.</p>}
 
-      {orders.map((order, index) => {
-        const item = order.items?.[0] || {};
-        const imageUrl = getCloudinaryImage(item.image || item.product?.images?.[0]);
+      {loading && <p>Loading orders...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-        return (
-          <div className="order-card" key={order._id || index}>
-            <div className="order-header">
-              <img
-                src={imageUrl}
-                alt={item.name || "Product"}
-                className="order-image"
-                style={{
-                  width: "220px",
-                  height: "220px",
-                  borderRadius: "12px",
-                  objectFit: "cover",
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-                }}
-              />
+      {Array.isArray(orders) && orders.length === 0 && !loading && !error && (
+        <p>No orders found</p>
+      )}
 
-              <div className="order-details">
-                <h3>Product Details</h3>
-                <p>Name: {item.name}</p>
-                <p>Size: {item.selectedSize}</p>
-                <p>Color: {item.selectedColor}</p>
-                <p>Quantity: {item.quantity}</p>
-                <p>Total: ₹{order.totalAmount}</p>
+      {Array.isArray(orders) &&
+        orders.map((order) => (
+          <div key={order._id} className="order-card">
+            <h3>Order ID: {order._id}</h3>
+            <p>Total: ₹{order.totalAmount}</p>
+            <p>
+              Status:{" "}
+              <span className={`status ${order.status}`}>{order.status}</span>
+            </p>
 
-                <h3>Delivery Details</h3>
-                <p>Name: {order.delivery?.name}</p>
-                <p>Phone: {order.delivery?.phone}</p>
-                <p>House: {order.delivery?.house}</p>
-                <p>Street: {order.delivery?.street}</p>
-                <p>City: {order.delivery?.city}</p>
-                <p>State: {order.delivery?.state}</p>
-                <p>Pincode: {order.delivery?.pincode}</p>
+            <h4>Delivery Details</h4>
+
+            {editingOrderId === order._id ? (
+              <div className="edit-form">
+                <input
+                  type="text"
+                  value={editData.house || ""}
+                  placeholder="House"
+                  onChange={(e) =>
+                    setEditData({ ...editData, house: e.target.value })
+                  }
+                />
+                <input
+                  type="text"
+                  value={editData.city || ""}
+                  placeholder="City"
+                  onChange={(e) =>
+                    setEditData({ ...editData, city: e.target.value })
+                  }
+                />
+                <input
+                  type="text"
+                  value={editData.pincode || ""}
+                  placeholder="Pincode"
+                  onChange={(e) =>
+                    setEditData({ ...editData, pincode: e.target.value })
+                  }
+                />
+
+                <button
+                  className="save-btn"
+                  onClick={() => handleUpdate(order._id)}
+                >
+                  Save
+                </button>
               </div>
+            ) : (
+              <>
+                <p>{order.delivery?.house}</p>
+                <p>{order.delivery?.city}</p>
+                <p>{order.delivery?.pincode}</p>
+              </>
+            )}
+
+            <div className="order-buttons">
+              {order.status === "Pending" && (
+                <>
+                  <button
+                    className="edit-btn"
+                    onClick={() => {
+                      setEditingOrderId(order._id);
+                      setEditData(order.delivery || {});
+                    }}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    className="cancel-btn"
+                    onClick={() => handleCancel(order._id)}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+
+              <button
+                className="delete-btn"
+                onClick={() => handleDelete(order._id)}
+              >
+                Delete
+              </button>
             </div>
           </div>
-        );
-      })}
+        ))}
     </div>
   );
 }
