@@ -1,86 +1,149 @@
-.login-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  font-family: "Poppins", sans-serif;
+/* Login.css / Signup.css (can be shared) */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f5f5f5;
 }
 
 .form-box,
 .greeting-box {
-  background: #fff0f6;
+  max-width: 400px;
+  margin: 60px auto;
   padding: 30px 25px;
+  background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
   text-align: center;
-}
-
-.form-box h2,
-.greeting-box h2 {
-  color: #d63384;
   margin-bottom: 20px;
+  color: #333;
+  font-weight: 600;
 }
 
-.form-box input {
-  width: 100%;
-  padding: 12px 10px;
-  margin: 8px 0;
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input {
+  padding: 12px 15px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  border: 1px solid #d63384;
-  outline: none;
-  font-size: 14px;
-}
-
-.form-box input:focus {
-  border-color: #b1276e;
-  box-shadow: 0 0 5px rgba(177, 39, 110, 0.3);
-}
-
-.form-box button,
-.logout-btn {
+  font-size: 15px;
   width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+  border-color: #0077ff;
+  box-shadow: 0 0 5px rgba(0, 119, 255, 0.4);
+  outline: none;
+}
+
+button {
   padding: 12px;
-  margin-top: 12px;
   border: none;
   border-radius: 8px;
-  background: #d63384;
+  background-color: #0077ff;
   color: #fff;
-  font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background-color 0.3s;
 }
 
-.form-box button:hover,
-.logout-btn:hover {
-  background: #b1276e;
+button:disabled {
+  background-color: #7da9ff;
+  cursor: not-allowed;
 }
 
-.toggle-text {
-  margin-top: 12px;
-  font-size: 14px;
-}
-
-.toggle-link {
-  color: #d63384;
-  cursor: pointer;
-  font-weight: 600;
+button:hover:not(:disabled) {
+  background-color: #005ecb;
 }
 
 .error-msg {
-  color: red;
+  color: #ff4d4f;
   font-size: 14px;
-  margin-top: 6px;
+  text-align: center;
+}
+
+.success-msg {
+  color: #28a745;
+  font-size: 14px;
+  text-align: center;
+}
+
+.toggle-text {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.toggle-link {
+  color: #0077ff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.toggle-link:hover {
+  text-decoration: underline;
+}
+
+.greeting-box h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.greeting-box p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #555;
+  text-align: center;
+}
+
+.logout-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
 }
 
 /* Responsive */
-@media (max-width: 480px) {
-  .login-container {
-    margin: 20px;
+@media screen and (max-width: 480px) {
+  .form-box,
+  .greeting-box {
+    margin: 40px 20px;
+    padding: 25px 20px;
+  }
+
+  input,
+  button {
+    font-size: 14px;
     padding: 10px;
   }
 
-  .form-box,
-  .greeting-box {
-    padding: 20px 15px;
+  h2 {
+    font-size: 20px;
   }
 }

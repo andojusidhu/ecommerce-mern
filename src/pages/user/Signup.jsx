@@ -1,3 +1,4 @@
+// Signup.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./Signup.css";
@@ -32,7 +33,12 @@ export default function Signup() {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
@@ -42,7 +48,12 @@ export default function Signup() {
         return;
       }
 
-      setSuccess("Signup successful! You can now login.");
+      setSuccess("Signup successful! You are now logged in.");
+
+      // Save token and user in localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       setFormData({
         name: "",
         email: "",
@@ -51,8 +62,8 @@ export default function Signup() {
         confirmPassword: "",
       });
 
-      // Redirect to login after 1.5s
-      setTimeout(() => navigate("/login"), 1500);
+      // Optional: redirect after signup
+      setTimeout(() => navigate("/"), 1500);
     } catch (err) {
       console.error(err);
       setError("Server error. Please try again later.");
